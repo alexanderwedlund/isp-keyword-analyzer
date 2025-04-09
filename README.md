@@ -15,6 +15,7 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 - Support for Swedish and English language ISPs
 - Session management for saving and resuming analysis
 - Excel export of analysis results with detailed metrics
+- Context viewing functionality that displays surrounding sentences when analyzing keywords to improve classification accuracy
 
 ## Installation
 
@@ -43,13 +44,13 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 To start the ISP Analyzer application, run the following command in Windows PowerShell:
 
 ```
-python -m streamlit run isp_analyzer.py
+python -m streamlit run isp_keyword_analyzer.py
 ```
 
 For UNIX/Linux/macOS systems, use:
 
 ```
-python3 -m streamlit run isp_analyzer.py
+python3 -m streamlit run isp_keyword_analyzer.py
 ```
 
 ### Analysis Workflow
@@ -59,8 +60,9 @@ python3 -m streamlit run isp_analyzer.py
 3. **Classify sentences**: For each sentence containing the keyword, determine if it provides:
    - Actionable Advice (AA): Clear, specific guidance
    - Other Information (OI): General information or ambiguous instructions
-4. **Review results**: Examine metrics, including the Keyword Loss of Specificity
-5. **Export data**: Generate an Excel file with comprehensive analysis results
+4. **Use context when needed**: Toggle the Context button to view surrounding sentences (previous and next) for better understanding of how the keyword is used in its larger textual environment
+5. **Save your progress**: You can save your session anytime
+6. **Export data**: Generate an Excel file with analysis results
 
 ## Technical Details
 

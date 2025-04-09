@@ -54,9 +54,9 @@ class Analyzer:
         total_oi = sum(keyword_oi_counts.values())
         total_all = total_aa + total_oi
         
-        print(f"\n=== DEBUG FÖR ISP {isp_id} ===")
-        print(f"Total AA: {total_aa}, Total OI: {total_oi}, Total: {total_all}")
-        print("Per nyckelord:")
+        # print(f"\n=== DEBUGGING ISP {isp_id} ===")  # DEBUG
+        # print(f"Total AA: {total_aa}, Total OI: {total_oi}, Total: {total_all}")  # DEBUG
+        # print("Per keyword:")  # DEBUG
 
         metrics = {
             'total_aa': total_aa,
@@ -73,7 +73,7 @@ class Analyzer:
             oi = keyword_oi_counts.get(kw, 0)
             tot = aa + oi
             loss = (oi / tot * 100) if tot > 0 else None
-            print(f"  {kw}: AA={aa}, OI={oi}, Tot={tot}, Loss={loss}%")
+            # print(f"  {kw}: AA={aa}, OI={oi}, Tot={tot}, Loss={loss}%") # DEBUG
             metrics['keyword_loss_specificity'][kw] = (oi / tot * 100) if tot > 0 else None
         
         return metrics
