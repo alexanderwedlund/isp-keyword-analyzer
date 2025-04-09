@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# Allow directory traversal (so Git can see files in subdirectories)
+!*/
+
+# Allow Python files
+!*.py
+
+# Allow text files
+!*.txt
