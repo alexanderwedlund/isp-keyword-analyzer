@@ -2,7 +2,7 @@
 
 ## Overview
 
-ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed to support the master thesis research conducted by me and a coursemate at Örebro University
+ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed to support master thesis research conducted by Alexander and Solan at Örebro University.
 
 ## Features
 
@@ -70,7 +70,7 @@ The application is built using:
 - SQLite for session state management
 - Pandas and XlsxWriter for data manipulation and export
 
-- ## Methodology
+## Methodology
 
 The core analytical framework is based on the "Keyword Loss of Specificity" metric by [Rostami & Karlsson (2024)](https://www.emerald.com/insight/content/doi/10.1108/ics-10-2023-0187/full/pdf), which quantifies how often keywords appear in contexts that don't provide actionable guidance:
 
