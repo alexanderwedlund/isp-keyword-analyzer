@@ -1,0 +1,344 @@
+Prompt:
+
+I have developed an app intended for research in information security, where specific keywords are to be analyzed.
+
+
+
+I would like your help in writing a fictional operational ISP (Information Security Policy) in Swedish. An operational ISP is a document that guides employees in their day-to-day activities, helping them maintain good cyber hygiene—for example, by including advice such as "you should lock your computer screen when it is not in use."
+
+
+
+The document should incorporate all of the following keywords: "Aldrig", "Behöver", "Bör", "Ej", "Förbjuden", "Inte", "Måste", "Ska", "Skall". Some of these should appear at the very beginning of the document, some in the middle, and some at the end.
+
+
+
+In addition to operational guidance, I also want the document to include more strategic content—general information or broader, less specific statements. These strategic sections should also include the specified keywords.
+
+
+
+Company name: Exempelföretaget ABC
+
+Response:
+
+Absolut! Här är ett utkast till en fiktiv operativ informationssäkerhetspolicy (ISP) för "Exempelföretaget ABC" på svenska, som inkluderar både operativa råd och strategiska inslag, samt de specificerade nyckelorden ("Aldrig", "Behöver", "Bör", "Ej", "Förbjuden", "Inte", "Måste", "Ska", "Skall") fördelade i texten.
+
+Operativ Informationssäkerhetspolicy för Exempelföretaget ABC
+
+Version: 1.0
+Datum: 2025-04-10
+Godkänd av: Ledningsgruppen
+
+1. Inledning och Syfte (Strategiskt)
+
+Informationssäkerhet är en grundläggande och kritisk komponent för Exempelföretaget ABC:s framgång, rykte och fortsatta verksamhet. Denna policy ska utgöra grunden för hur vi skyddar våra informationstillgångar – från kunddata och affärshemligheter till personuppgifter och intern kommunikation. Varje medarbetare måste vara medveten om sitt ansvar och aktivt bidra till en säker arbetsmiljö. Att upprätthålla hög säkerhet är inte en engångsinsats, utan en kontinuerlig process som kräver vaksamhet från alla. Syftet med policyn är att ge tydlig vägledning för det dagliga arbetet och säkerställa att alla förstår vikten av att skydda företagets information.
+
+2. Omfattning
+
+Denna policy gäller för samtliga anställda, konsulter, praktikanter och inhyrd personal som har tillgång till Exempelföretaget ABC:s informationssystem, nätverk och data, oavsett var arbetet utförs (på kontoret, hemifrån eller på annan plats).
+
+3. Riktlinjer för Dagligt Arbete (Operativt)
+
+För att upprätthålla en god cybersäkerhetsnivå i det dagliga arbetet gäller följande:
+
+3.1 Åtkomst och Lösenord:
+
+Ditt lösenord är personligt. Dela aldrig ditt lösenord med någon annan, varken internt eller externt.
+Lösenord ska vara komplexa (innehålla stora och små bokstäver, siffror och specialtecken) och bytas regelbundet enligt IT-avdelningens instruktioner.
+Du bör aktivera multifaktorautentisering (MFA) där det erbjuds.
+Logga ut eller lås din datorskärm när du lämnar din arbetsplats, även för korta pauser. Detta måste göras för att förhindra obehörig åtkomst.
+3.2 E-post och Kommunikation:
+
+Var kritisk till e-postmeddelanden, särskilt de som innehåller länkar eller bilagor, eller som uppmanar till brådskande handlingar gällande känslig information. Klicka ej på misstänkta länkar och öppna inte oväntade bilagor.
+Skicka inte känslig eller konfidentiell information via okrypterad e-post. Använd företagets godkända verktyg för säker kommunikation.
+Du behöver vara extra uppmärksam på avsändaradressen vid extern kommunikation för att undvika nätfiske (phishing).
+3.3 Fysisk Säkerhet:
+
+Lämna inte känsliga dokument synliga på skrivbordet när du lämnar det obevakat. Förvara dem inlåsta.
+Var uppmärksam på okända personer i företagets lokaler. Besökare ska alltid anmälas och bära synlig besöksbricka.
+Se till att dörrar till säkra utrymmen hålls stängda och låsta.
+3.4 Användning av Utrustning och Programvara:
+
+Använd endast utrustning (datorer, mobiler etc.) och programvara som är godkänd av Exempelföretaget ABC.
+Installation av icke-godkänd programvara eller anslutning av privat utrustning till företagets nätverk utan tillstånd är strängt förbjuden.
+Håll operativsystem och programvara uppdaterade enligt IT-avdelningens riktlinjer. Detta skall göras för att skydda mot kända sårbarheter.
+4. Datahantering och Klassificering (Strategiskt och Operativt)
+
+All information som hanteras inom Exempelföretaget ABC har ett värde och behöver skyddas utifrån dess känslighet. Informationen ska klassificeras och hanteras enligt företagets interna riktlinjer för dataklassificering och gällande lagstiftning (t.ex. GDPR). Lagring av känslig företagsinformation på privata enheter eller molntjänster är som huvudregel inte tillåten.
+
+5. Incidentrapportering
+
+Alla misstänkta eller konstaterade säkerhetsincidenter (t.ex. misstänkt intrång, förlorad utrustning, virusinfektion, misstänkt nätfiske) skall omedelbart rapporteras till IT-avdelningen eller närmaste chef enligt gällande incidenthanteringsrutin. Snabb rapportering är avgörande för att minimera eventuell skada.
+
+6. Ansvar och Efterlevnad (Strategiskt)
+
+Varje anställd är personligt ansvarig för att följa denna policy. Chefer har ett särskilt ansvar att säkerställa att deras medarbetare känner till, förstår och följer policyn. IT-avdelningen ansvarar för att tillhandahålla nödvändiga tekniska skydd och stöd. Medveten eller upprepad överträdelse av denna policy kan leda till disciplinära åtgärder. Att upprätthålla säkerheten är inte valfritt, det är en förutsättning för vår verksamhet.
+
+7. Granskning och Uppdatering
+
+Denna policy skall granskas minst en gång per år, eller oftare vid behov (t.ex. vid förändringar i hotbild, teknologi eller lagstiftning), för att säkerställa att den förblir relevant och effektiv.
+
+8. Kontakt
+
+Vid frågor kring denna policy eller osäkerhet kring informationssäkerhet, kontakta IT-supporten eller din närmaste chef. Du behöver inte tveka att fråga om något är oklart.
+
+Hoppas detta utkast är användbart för ditt projekt! Det täcker både operativa råd och strategiska aspekter, och alla de angivna nyckelorden finns med på olika platser i dokumentet.
+
+Prompt:
+
+Create another policy document. This time, I want the policy to be a combination of both strategic and operational elements. It should include relevant guidelines for day-to-day operations, but also strategic content—such as how the company should approach and value information security, including aspects of its vision and long-term goals.
+
+Company name: Exempelföretaget ABC
+
+Response:
+
+Okej, här är ett förslag på en informationssäkerhetspolicy för Exempelföretaget ABC som kombinerar strategiska åtaganden med operativa riktlinjer.
+
+Informationssäkerhetspolicy för Exempelföretaget ABC
+
+Version: 2.0
+Datum: 2025-04-10
+Godkänd av: Ledningsgruppen
+
+1. Vision och Strategiskt Åtagande
+
+Exempelföretaget ABC:s vision är att [infoga företagets övergripande vision, t.ex. "vara den mest innovativa och pålitliga partnern inom vår bransch"]. För att uppnå detta är förtroende från våra kunder, partners och medarbetare avgörande. Informationssäkerhet är inte bara en teknisk fråga, utan en strategisk grundpelare för att bygga och bibehålla detta förtroende, skydda vårt varumärke och säkerställa vår långsiktiga konkurrenskraft och framgång.
+
+Vi åtar oss att:
+
+Integrera informationssäkerhet som en naturlig del i alla verksamhetsprocesser och beslut.
+Proaktivt identifiera och hantera risker relaterade till våra informationstillgångar.
+Säkerställa konfidentialitet, riktighet och tillgänglighet för all information vi hanterar.
+Uppfylla eller överträffa legala, regulatoriska och avtalsmässiga krav på informationssäkerhet.
+Främja en stark säkerhetskultur där varje medarbetare förstår vikten av och aktivt bidrar till informationssäkerheten.
+Vårt långsiktiga mål är att informationssäkerhet ska vara en affärsmöjliggörare, som stödjer innovation och effektivitet utan att kompromissa med skyddet av våra värdefulla tillgångar.
+
+2. Syfte och Omfattning
+
+Syftet med denna policy är att definiera ramverket och de grundläggande kraven för informationssäkerhet inom Exempelföretaget ABC. Den syftar till att ge både strategisk vägledning och konkreta operativa regler för att skydda företagets informationstillgångar.
+
+Policyn omfattar all information som ägs, hanteras eller lagras av Exempelföretaget ABC, oavsett format eller plats. Den gäller för samtliga anställda, ledning, styrelse, konsulter, praktikanter och tredjepartsleverantörer som har tillgång till företagets information eller system.
+
+3. Grundläggande Säkerhetsprinciper (Strategisk grund för operationella regler)
+
+All hantering av information och system inom Exempelföretaget ABC ska vägledas av följande principer:
+
+Konfidentialitet: Information ska endast vara tillgänglig för behöriga individer.
+Riktighet (Integritet): Information ska vara korrekt, fullständig och skyddad mot otillåten ändring eller radering.
+Tillgänglighet: Information och tillhörande system ska vara tillgängliga för behöriga användare när de behövs.
+Minsta möjliga behörighet: Användare ska endast tilldelas de behörigheter som är nödvändiga för att utföra sina arbetsuppgifter.
+Riskbaserat förhållningssätt: Säkerhetsåtgärder ska baseras på en bedömning av risker och anpassas efter informationens värde och känslighet.
+Ansvarsskyldighet: Alla handlingar ska kunna spåras till en ansvarig individ eller process.
+4. Operativa Riktlinjer och Ansvar (Dagligt arbete)
+
+För att uppfylla våra strategiska mål och principer krävs följande av varje medarbetare i det dagliga arbetet:
+
+4.1 Användarkonton och Lösenord:
+
+Ditt användarkonto är personligt och får inte delas. Du är ansvarig för all aktivitet som sker via ditt konto.
+Använd starka, unika lösenord för alla system och byt dem enligt företagets riktlinjer. Aktivera multifaktorautentisering (MFA) där det är tillgängligt. Detta är en grundläggande åtgärd för att skydda både din och företagets information (Konfidentialitet).
+Lås din dator och mobila enheter när du lämnar dem utan uppsikt.
+4.2 E-post och Kommunikation:
+
+Var kritisk mot oväntad eller misstänkt e-post, särskilt gällande länkar och bilagor (nätfiske). Verifiera avsändarens identitet vid osäkerhet. Felaktig hantering kan leda till intrång och skada företagets rykte.
+Skicka känslig eller konfidentiell information endast via godkända, säkra kanaler (t.ex. krypterad e-post).
+4.3 Fysisk Säkerhet:
+
+Skydda fysiska dokument och lagringsmedia från obehörig åtkomst. Förvara känsligt material inlåst när det inte används.
+Var uppmärksam på din omgivning och rapportera okända personer eller misstänkta aktiviteter i företagets lokaler. Bidra till att upprätthålla skalskyddet.
+4.4 Användning av Utrustning och Programvara:
+
+Använd endast utrustning och programvara som tillhandahålls och godkänts av Exempelföretaget ABC för arbetsändamål.
+Installation av icke-godkänd programvara är förbjuden då den kan introducera sårbarheter som hotar alla våra säkerhetsprinciper.
+Håll system och programvara uppdaterade enligt IT-avdelningens instruktioner.
+4.5 Hantering av Information:
+
+Hantera all företagsinformation (inklusive kunddata, personaldata, affärshemligheter) med lämplig sekretess och i enlighet med dess klassificering och gällande lagstiftning (t.ex. GDPR). Detta är avgörande för att uppfylla vårt strategiska åtagande om förtroende och regelefterlevnad.
+Lagra eller behandla inte företagsinformation på privata enheter eller osäkra molntjänster utan uttryckligt godkännande.
+Säkerställ korrekt radering eller destruktion av information när den inte längre behövs.
+4.6 Distansarbete:
+
+Vid arbete utanför kontoret, säkerställ att du använder en säker nätverksanslutning (t.ex. VPN) och att din arbetsmiljö skyddar information från obehörig insyn. Flexibilitet får inte ske på bekostnad av säkerhet.
+5. Incidenthantering
+
+Alla misstänkta eller faktiska informationssäkerhetsincidenter (t.ex. virus, dataintrång, förlorad utrustning, misstänkt obehörig åtkomst) ska omedelbart rapporteras till IT-avdelningen eller närmaste chef enligt gällande rutin. Snabb och korrekt hantering är kritisk för att minimera skada och säkerställa verksamhetens kontinuitet.
+
+6. Utbildning och Medvetenhet
+
+Exempelföretaget ABC ser utbildning och medvetandehöjning som en strategisk investering i vår säkerhet. Alla medarbetare är skyldiga att delta i obligatorisk säkerhetsutbildning och att hålla sig informerade om gällande policyer och rutiner. En medveten personal är vår viktigaste försvarslinje.
+
+7. Efterlevnad och Konsekvenser
+
+Efterlevnad av denna policy är obligatorisk för alla som omfattas av den. Brott mot policyn kan leda till disciplinära åtgärder, inklusive varning, omplacering eller uppsägning/avslutat uppdrag, samt eventuella rättsliga påföljder. Bristande efterlevnad riskerar inte bara operativa störningar utan kan allvarligt skada företagets strategiska tillgångar som varumärke och kundförtroende.
+
+8. Policyöversyn och Kontinuerlig Förbättring
+
+Denna policy ska ses över minst årligen, eller vid behov, av ansvarig funktion (t.ex. Informationssäkerhetsrådet eller IT-chefen) för att säkerställa att den är aktuell, relevant och effektivt stödjer företagets strategiska mål och anpassas till en föränderlig omvärld och hotbild. Förslag till förbättringar uppmuntras.
+
+9. Kontaktinformation
+
+Vid frågor om denna policy eller för att rapportera en incident, vänligen kontakta:
+
+IT-supporten: [Telefonnummer], [E-postadress]
+Informationssäkerhetsansvarig: [Namn], [E-postadress]
+Din närmaste chef
+Denna version försöker väva samman det strategiska "varför" med det operativa "hur" genom att förklara syftet bakom reglerna och koppla dem till företagets övergripande mål och principer.
+
+Prompt:
+
+Thanks. Now, please create two British English versions of the two ISPs. You can use the company name Examplecorp ABC. Keywords to include are: never, need, should, not, forbidden, must, and shall.
+
+Response:
+
+Okay, here are the two Information Security Policies (ISPs) translated and adapted into British English for "Examplecorp ABC".
+
+Policy 1: British English Version (Based on the first Swedish ISP with specific keywords)
+
+Operational Information Security Policy for Examplecorp ABC
+
+Version: 1.0
+Date: 2025-04-10
+Approved by: Management Board
+
+1. Introduction and Purpose (Strategic)
+
+Information security is fundamental to Examplecorp ABC's operations and the trust placed in us. This policy shall guide all employees in their daily activities to protect the company's information assets. Every employee must understand and adhere to these guidelines. Good cybersecurity is not solely the responsibility of the IT department, but everyone's. The purpose of this policy is to provide clear operational guidance and ensure everyone understands the importance of protecting company information.
+
+2. Scope
+
+This policy applies to all employees, contractors, and temporary staff at Examplecorp ABC who have access to the company's information systems, network, and data.
+
+3. Guidelines for Daily Work (Operational)
+
+To maintain a good level of cybersecurity in daily work, the following applies:
+
+3.1 Access and Passwords:
+
+Your password is personal. Never share your password with anyone else, either internally or externally.
+Passwords shall be complex and changed regularly according to IT department recommendations.
+You should use a password manager to handle your passwords securely.
+Your computer screen must be locked when you leave your workstation, even for short periods, to prevent unauthorised access.
+3.2 Email and Communication:
+
+Always be vigilant about phishing attempts and suspicious emails. Do not click on unknown links or open unexpected attachments.
+Sensitive information shall only be sent via approved and encrypted channels.
+You need to verify the sender's identity if you are uncertain, especially when requests seem unusual or urgent.
+3.3 Physical Security:
+
+Do not leave sensitive documents visible on your desk when unattended. Store them securely.
+Visitors shall always be signed in and wear a visible visitor badge. Be aware of unfamiliar individuals in company premises.
+3.4 Use of Equipment and Software:
+
+Only use equipment (computers, mobiles, etc.) and software approved by Examplecorp ABC.
+Installation of software that is not approved by the IT department is strictly forbidden.
+Systems and software must be kept updated according to the IT department's instructions. Any suspected malicious activity on your computer shall be reported immediately.
+4. Data Handling (Strategic & Operational Element)
+
+All company data shall be handled according to current legislation (e.g., GDPR) and internal classification rules. Sensitive information must not be stored in unsecured locations like personal cloud services or unapproved USB drives. You need to ensure data is securely disposed of when no longer required.
+
+5. Incident Reporting
+
+All suspected or confirmed security incidents (e.g., suspected breaches, lost equipment, virus infections, phishing attempts) must be reported immediately to the IT helpdesk or your line manager, following the current incident management procedure. Prompt reporting is crucial to minimise potential damage.
+
+6. Responsibilities and Compliance (Strategic)
+
+Every employee is responsible for adhering to this policy. Managers shall ensure their teams are aware of and understand the policy. The IT department is responsible for technical controls and support. Non-compliance is not acceptable; breaches of this policy may lead to disciplinary action, up to and including dismissal, and potentially legal consequences.
+
+7. Review and Updates
+
+This policy shall be reviewed and, if necessary, updated at least annually, or more frequently if circumstances require (e.g., changes in the threat landscape or regulations).
+
+8. Contact
+
+For questions regarding this policy, please contact the IT Helpdesk or your line manager.
+
+Policy 2: British English Version (Based on the second Swedish ISP - Integrated Strategic & Operational)
+
+Information Security Policy for Examplecorp ABC
+
+Version: 2.0
+Date: 2025-04-10
+Approved by: Management Board
+
+1. Vision and Strategic Commitment
+
+Examplecorp ABC's vision is to [insert company's overall vision, e.g., "be the most innovative and trusted partner in our industry"]. Achieving this relies fundamentally on the trust of our clients, partners, and employees. Information security is not merely a technical function; it is a strategic imperative for building and maintaining this trust, protecting our brand reputation, and ensuring our long-term competitiveness and success.
+
+We commit to:
+
+Integrating information security as a core component of all business processes and decisions.
+Proactively identifying and managing risks related to our information assets.
+Ensuring the confidentiality, integrity, and availability of all information we handle.
+Meeting or exceeding legal, regulatory, and contractual information security requirements.
+Fostering a strong security culture where every employee understands their role and actively contributes to information security.
+Our long-term goal is for information security to be a business enabler, supporting innovation and efficiency whilst safeguarding our valuable assets.
+
+2. Purpose and Scope
+
+The purpose of this policy is to establish the framework and fundamental requirements for information security within Examplecorp ABC. It aims to provide both strategic direction and specific operational rules to protect the organisation's information assets.
+
+This policy covers all information owned, processed, or stored by Examplecorp ABC, regardless of format or location. It applies to all employees, management, board members, contractors, temporary staff, and third-party suppliers who have access to company information or systems.
+
+3. Fundamental Security Principles (Strategic Basis for Operational Rules)
+
+All handling of information and systems within Examplecorp ABC shall be guided by the following principles:
+
+Confidentiality: Information must only be accessible to authorised individuals.
+Integrity: Information must be accurate, complete, and protected from unauthorised modification or deletion.
+Availability: Information and associated systems must be accessible to authorised users when needed.
+Least Privilege: Users shall only be granted the access necessary to perform their job functions.
+Risk-Based Approach: Security measures shall be based on assessed risks and proportionate to the value and sensitivity of the information.
+Accountability: All actions within systems should be traceable to a responsible individual or process.
+4. Operational Guidelines and Responsibilities (Daily Work)
+
+To achieve our strategic objectives and uphold these principles, the following is required from every employee in their daily work:
+
+4.1 User Accounts and Passwords:
+
+Your user account is personal and must not be shared. You are responsible for all activities conducted under your account.
+Use strong, unique passwords for all systems and change them according to company guidelines. Enable multi-factor authentication (MFA) where available. This is a basic measure to protect both your and the company's information (Confidentiality).
+Lock your computer and mobile devices when leaving them unattended.
+4.2 Email and Communication:
+
+Be critical of unexpected or suspicious emails, especially regarding links and attachments (phishing). Verify the sender's identity if uncertain. Mishandling can lead to breaches and damage the company's reputation.
+Send sensitive or confidential information only via approved, secure channels (e.g., encrypted email).
+4.3 Physical Security:
+
+Protect physical documents and storage media from unauthorised access. Keep sensitive materials locked away when not in use.
+Be aware of your surroundings and report unfamiliar individuals or suspicious activities on company premises. Help maintain perimeter security.
+4.4 Use of Equipment and Software:
+
+Use only equipment and software provided and approved by Examplecorp ABC for work purposes.
+Installation of unauthorised software is prohibited as it can introduce vulnerabilities threatening all our security principles.
+Keep systems and software updated according to IT department instructions.
+4.5 Handling Information:
+
+Handle all company information (including client data, personnel data, trade secrets) with appropriate care, according to its classification and applicable legislation (e.g., GDPR). This is crucial for fulfilling our strategic commitment to trust and regulatory compliance.
+Do not store or process company information on personal devices or unapproved cloud services without explicit authorisation.
+Ensure proper deletion or destruction of information when it is no longer needed.
+4.6 Remote Working:
+
+When working outside the office, ensure you use a secure network connection (e.g., VPN) and that your work environment protects information from unauthorised viewing. Flexibility must not compromise our strategic commitment to security.
+5. Incident Management
+
+All suspected or actual information security incidents (e.g., viruses, data breaches, lost equipment, suspected unauthorised access) must be reported immediately to the IT Helpdesk or your line manager, following the established procedure. Swift and accurate management is critical to minimise damage and ensure business continuity.
+
+6. Training and Awareness
+
+Examplecorp ABC views training and awareness as a strategic investment in our security posture. All employees are required to participate in mandatory security training and stay informed about current policies and procedures. An informed workforce is our most important line of defence.
+
+7. Compliance and Consequences
+
+Compliance with this policy is mandatory for everyone it covers. Violations may result in disciplinary action, including warnings, reassignment, or termination of employment/contract, as well as potential legal action. Non-compliance risks not only operational disruption but can severely damage the company's strategic assets, such as brand reputation and client trust.
+
+8. Policy Review and Continuous Improvement
+
+This policy shall be reviewed at least annually, or as needed, by the designated function (e.g., Information Security Committee or Head of IT) to ensure it remains current, relevant, and effectively supports the organisation's strategic goals while adapting to the evolving threat landscape. Suggestions for improvement are encouraged.
+
+9. Contact Information
+
+For questions about this policy or to report an incident, please contact:
+
+IT Helpdesk: [Phone Number], [Email Address]
+Information Security Manager: [Name], [Email Address]
+Your Line Manager
+These versions adapt the structure and intent of the original Swedish policies into natural-sounding British English, incorporating the required keywords in the first version and maintaining the integrated strategic/operational focus in the second.
