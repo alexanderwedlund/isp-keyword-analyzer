@@ -1,4 +1,4 @@
-# exporter.py
+# exporter.py v2.0
 # This module handles the export of analysis results to an Excel file.
 
 import pandas as pd

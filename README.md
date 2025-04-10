@@ -88,5 +88,5 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 
 ## Known Issues
 
-### Version 1.0
-- **ISP Text Refresh**: When adding a new ISP to the system, the application may occasionally fail to update the text content immediately. If you encounter an exception or notice missing content, navigate between ISPs (toggle between the newly added ISP and existing ones) 1-2 times to trigger a proper refresh of the content.
+### Version 2.0
+- **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word.

@@ -1,4 +1,4 @@
-# isp_analyzer.py
+# isp_analyzer.py v2.0
 # This is the main Streamlit application file that contains the UI logic.
 import streamlit as st
 import pandas as pd
@@ -46,6 +46,24 @@ if 'language' not in st.session_state:
     st.session_state.language = "Swedish"  # Default language
 if 'show_context' not in st.session_state:
     st.session_state.show_context = False
+if 'context_mode' not in st.session_state:
+    st.session_state.context_mode = "normal"  # Options: "normal" or "extended"
+if 'uploaded_filename' not in st.session_state:
+    st.session_state.uploaded_filename = ""
+if 'file_uploaded' not in st.session_state:
+    st.session_state.file_uploaded = False
+
+def on_file_upload():
+    """Callback when a file is uploaded to set the ISP name."""
+    if st.session_state.new_isp_file is not None:
+        filename = st.session_state.new_isp_file.name
+        filename_without_ext = filename.rsplit(".", 1)[0] if "." in filename else filename
+        st.session_state.uploaded_filename = filename_without_ext
+        st.session_state.file_uploaded = True
+        st.session_state.new_isp_name = filename_without_ext
+    else:
+        st.session_state.file_uploaded = False
+        st.session_state.uploaded_filename = ""
 
 def get_current_isp():
     """Get the currently selected ISP data."""
@@ -88,8 +106,18 @@ with col_sidebar:
     st.subheader("ISP Management")
     
     with st.expander("Add New ISP", expanded=(st.session_state.current_isp_id is None)):
-        new_isp_name = st.text_input("ISP Name", key="new_isp_name")
-        uploaded_file = st.file_uploader("Choose an ISP file", type=["txt", "pdf"], key="new_isp_file")
+        new_isp_name = st.text_input(
+            "ISP Name", 
+            disabled=not st.session_state.file_uploaded,
+            key="new_isp_name"
+        )
+        
+        uploaded_file = st.file_uploader(
+            "Choose an ISP file", 
+            type=["txt", "pdf"], 
+            key="new_isp_file",
+            on_change=on_file_upload
+        )
         
         if st.button("Add ISP"):
             if not new_isp_name:
@@ -97,22 +125,34 @@ with col_sidebar:
             elif not uploaded_file:
                 st.error("Please upload an ISP file")
             else:
-                isp_text = ""
-                if uploaded_file.type == "text/plain":
-                    isp_text = FileProcessor.read_text_file(uploaded_file)
-                elif uploaded_file.type == "application/pdf":
-                    isp_text = FileProcessor.extract_text_from_pdf(uploaded_file)
-                if isp_text:
-                    isp_id = st.session_state.next_isp_id
-                    st.session_state.isps[isp_id] = {
-                        'name': new_isp_name,
-                        'text': isp_text,
-                        'analysis_results': {}
-                    }
-                    st.session_state.analyzed_keywords[isp_id] = set()
-                    st.session_state.current_isp_id = isp_id
-                    st.session_state.next_isp_id += 1
-                    st.rerun()
+                existing_names = [isp.get('name', f"ISP {isp_id}") for isp_id, isp in st.session_state.isps.items()]
+                if new_isp_name in existing_names:
+                    st.error(f"An ISP with the name '{new_isp_name}' already exists. Please choose a different name.")
+                else:
+                    isp_text = ""
+                    if uploaded_file.type == "text/plain":
+                        isp_text = FileProcessor.read_text_file(uploaded_file)
+                    elif uploaded_file.type == "application/pdf":
+                        isp_text = FileProcessor.extract_text_from_pdf(uploaded_file)
+                    if isp_text:
+                        isp_id = st.session_state.next_isp_id
+                        st.session_state.isps[isp_id] = {
+                            'name': new_isp_name,
+                            'text': isp_text,
+                            'analysis_results': {}
+                        }
+                        st.session_state.analyzed_keywords[isp_id] = set()
+                        st.session_state.current_isp_id = isp_id
+                        # Solving bug identified in v1.0
+                        st.session_state.current_keyword = None
+                        st.session_state.current_sentences = []
+                        st.session_state.current_index = 0
+                        st.session_state.classifications = []
+                        # Continue
+                        st.session_state.next_isp_id += 1
+                        st.session_state.file_uploaded = False
+                        st.session_state.uploaded_filename = ""
+                        st.rerun()
     
     if st.session_state.isps:
         st.subheader("Select ISP")
@@ -137,8 +177,9 @@ with col_sidebar:
             st.session_state.current_sentences = []
             st.session_state.current_index = 0
             st.session_state.classifications = []
-            if st.button("Select this ISP"):
-                st.rerun()
+            st.rerun()
+            # if st.button("Select this ISP"): 
+            #    st.rerun() # Solving bug identified in v1.0/Load ISP instead of waiting for button press
     
     # Keyword selection
     current_isp = get_current_isp()
@@ -177,38 +218,81 @@ with col_sidebar:
     
     # Save/Load Session
     st.subheader("Save/Load Session")
-    col_save, col_load = st.columns(2)
-    with col_save:
-        if st.button("Save Session"):
+
+    with st.container():
+        st.markdown("""
+        <style>
+        .session-container {
+            background-color: rgba(20, 20, 30, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 5px;
+        }
+        .btn-session {
+            margin-bottom: 10px;
+        }
+        </style>
+        <div class="session-container"></div>
+        """, unsafe_allow_html=True)
+        
+        # Save Session
+        st.text("Save Session")
+        if st.button("Save Analysis", key="save_btn", use_container_width=True):
             timestamp = SessionDB.save_session()
             st.success(f"Session saved at {timestamp}")
-    with col_load:
+        
         saved_sessions = SessionDB.get_sessions()
         if saved_sessions:
+            st.markdown("<div style='margin-top: 15px;'></div>", unsafe_allow_html=True)
+            st.text("Load Session")
             session_options = {f"ID: {sid} at {ts}": sid for sid, ts in saved_sessions}
-            selected_session_display = st.selectbox("Select session to load", list(session_options.keys()))
+            selected_session_display = st.selectbox(
+                "Select saved session", 
+                list(session_options.keys()), 
+                key="session_select",
+                label_visibility="collapsed"
+            )
             selected_session_id = session_options[selected_session_display]
-            if st.button("Load Session"):
+            
+            if st.button("Continue Analysis", key="load_btn", use_container_width=True):
                 if SessionDB.load_session(selected_session_id):
                     st.success("Session loaded successfully!")
                     current_isp = get_current_isp()
                     if current_isp:
-                        st.info(f"Currently selected ISP: {current_isp.get('name', f'ISP {st.session_state.current_isp_id}')}")
-                    if st.button("Continue Analysis"):
+                        st.info(f"Selected ISP: {current_isp.get('name', f'ISP {st.session_state.current_isp_id}')}")
+                    if st.button("Start Analysis", key="continue_btn"):
                         st.rerun()
         else:
             st.info("No saved sessions found.")
-    
-    if st.button("Reset Analysis"):
-        st.session_state.isps = {}
-        st.session_state.current_isp_id = None
-        st.session_state.next_isp_id = 1
-        st.session_state.current_keyword = None
-        st.session_state.current_sentences = []
-        st.session_state.current_index = 0
-        st.session_state.classifications = []
-        st.session_state.analyzed_keywords = {}
-        st.rerun()
+        
+        st.markdown("<div style='margin-top: 40px;'></div>", unsafe_allow_html=True)
+        
+        if st.button("Reset Analysis", key="reset_btn", 
+                use_container_width=True, 
+                help="WARNING: This will clear all your analysis data!",
+                type="primary"):
+            st.session_state.isps = {}
+            st.session_state.current_isp_id = None
+            st.session_state.next_isp_id = 1
+            st.session_state.current_keyword = None
+            st.session_state.current_sentences = []
+            st.session_state.current_index = 0
+            st.session_state.classifications = []
+            st.session_state.analyzed_keywords = {}
+            st.rerun()
+        
+        st.markdown("""
+        <style>
+        [data-testid="stButton"] > button[kind="primary"] {
+            background-color: #cc0000;
+            color: white;
+        }
+        [data-testid="stButton"] > button[kind="primary"]:hover {
+            background-color: #aa0000;
+            border: 1px solid white;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
 # Main content area
 with col_main:
@@ -241,6 +325,10 @@ with col_main:
                 with col1:
                     if st.button("Actionable Advice (AA)", key="aa_button", use_container_width=True):
                         occurrence_id = f"{current_item['sentence']}::{current_item['start']}::{current_item['end']}"
+                        if 'analysis_results' not in current_isp: # Solving bug identified in v1.0
+                            current_isp['analysis_results'] = {} # Solving bug identified in v1.0
+                        if st.session_state.current_keyword not in current_isp['analysis_results']: # Solving bug identified in v1.0
+                            current_isp['analysis_results'][st.session_state.current_keyword] = {'AA': [], 'OI': []} # Solving bug identified in v1.0
                         if occurrence_id not in current_isp['analysis_results'][st.session_state.current_keyword]['AA']:
                             current_isp['analysis_results'][st.session_state.current_keyword]['AA'].append(occurrence_id)
                         if occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['OI']:
@@ -263,18 +351,69 @@ with col_main:
                         st.session_state.show_context = not st.session_state.show_context
                         st.rerun()
                 if st.session_state.show_context:
+                    context_col1, context_col2 = st.columns(2)
+                    with context_col1:
+                        context_mode = st.radio(
+                            "Context Mode:",
+                            ["Normal (1 sentence)", "Extended (5 sentences)"],
+                            horizontal=True,
+                            index=0 if st.session_state.context_mode == "normal" else 1
+                        )
+                        st.session_state.context_mode = "normal" if context_mode == "Normal (1 sentence)" else "extended"
+                    
                     st.markdown("### Sentence Context:")
                     context_item = st.session_state.current_sentences[st.session_state.current_index]
-                    st.markdown(
-                        "<div style='margin:10px 0; padding:10px; border:1px solid #ddd; border-radius:5px;'>"
-                        f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px;'>"
-                        f"<strong>Previous:</strong> {context_item.get('before_context', '')}</div><br/>"
-                        f"<strong>Current:</strong> {highlighted_sentence}<br/>"
-                        f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px;'>"
-                        f"<strong>Next:</strong> {context_item.get('after_context', '')}</div>"
-                        "</div>",
-                        unsafe_allow_html=True
-                    )
+                    
+                    if st.session_state.context_mode == "normal":
+                        # Display normal context (1 sentence before and after)
+                        st.markdown(
+                            "<div style='margin:10px 0; padding:10px; border:1px solid #ddd; border-radius:5px;'>"
+                            f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px;'>"
+                            f"<strong>Previous:</strong> {context_item.get('before_context', '')}</div><br/>"
+                            f"<strong>Current:</strong> {highlighted_sentence}<br/>"
+                            f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px;'>"
+                            f"<strong>Next:</strong> {context_item.get('after_context', '')}</div>"
+                            "</div>",
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        # Display extended context (5 sentences before and after)
+                        extended_before = context_item.get('extended_before_context', [])
+                        extended_after = context_item.get('extended_after_context', [])
+                        
+                        # Prepare the HTML for extended context
+                        context_html = "<div style='margin:10px 0; padding:10px; border:1px solid #ddd; border-radius:5px;'>"
+                        
+                        # Add the extended before context section
+                        context_html += "<div style='background-color: #333333; color: white; padding: 5px; border-radius: 3px; margin-bottom: 10px;'>"
+                        context_html += "<strong>Extended Context (Before):</strong></div>"
+                        
+                        # Add each extended before context sentence
+                        for sentence in extended_before:
+                            context_html += f"<div style='background-color: #0f1117; padding: 5px; margin-bottom: 5px;'>{sentence}</div>"
+                        
+                        # Add the immediate before context
+                        context_html += f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px; margin: 10px 0;'>"
+                        context_html += f"<strong>Previous:</strong> {context_item.get('before_context', '')}</div>"
+                        
+                        # Add the current sentence
+                        context_html += f"<div style='margin: 10px 0;'><strong>Current:</strong> {highlighted_sentence}</div>"
+                        
+                        # Add the immediate after context
+                        context_html += f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px; margin: 10px 0;'>"
+                        context_html += f"<strong>Next:</strong> {context_item.get('after_context', '')}</div>"
+                        
+                        # Add the extended after context section
+                        context_html += "<div style='background-color: #333333; color: white; padding: 5px; border-radius: 3px; margin-top: 10px;'>"
+                        context_html += "<strong>Extended Context (After):</strong></div>"
+                        
+                        # Add each extended after context sentence
+                        for sentence in extended_after:
+                            context_html += f"<div style='background-color: #0f1117; padding: 5px; margin-top: 5px;'>{sentence}</div>"
+                        
+                        context_html += "</div>"
+                        
+                        st.markdown(context_html, unsafe_allow_html=True)
                 col_back, col_forward = st.columns(2)
                 with col_back:
                     if st.button("Back", key="back_button", use_container_width=True) and st.session_state.current_index > 0:
@@ -293,6 +432,52 @@ with col_main:
             else:
                 st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(st.session_state.current_keyword)
                 st.success(f"All {total_sentences} sentences with '{st.session_state.current_keyword}' have been classified!")
+                # Kontrollera om alla nyckelord har analyserats
+                all_keywords = list(keywords.keys())
+                analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
+
+                if len(analyzed_for_isp) == len(all_keywords):
+                    # Alla nyckelord har analyserats - visa balloons för visuell effekt
+                    st.balloons()
+                    
+                    # Skapa en tydlig bekräftelse med CSS
+                    st.markdown("""
+                    <style>
+                    .completion-alert {
+                        background-color: #4CAF50;
+                        color: white;
+                        padding: 20px;
+                        border-radius: 8px;
+                        margin: 20px 0;
+                        text-align: center;
+                        font-size: 18px;
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+                    }
+                    .completion-alert h2 {
+                        margin-top: 0;
+                        color: white;
+                    }
+                    .completion-alert ul {
+                        text-align: left;
+                        display: inline-block;
+                        margin-top: 10px;
+                    }
+                    .highlight-text {
+                        font-weight: bold;
+                        text-decoration: underline;
+                    }
+                    </style>
+                    <div class="completion-alert">
+                        <h2>🎉 Congratulations! 🎉</h2>
+                        <p>You have successfully analyzed <span class="highlight-text">all keywords</span> for this ISP!</p>
+                        <p>Next steps:</p>
+                        <ul>
+                            <li>Load a new ISP for further analysis from the sidebar or</li>
+                            <li>Export the results using the "Export Results" section below</li>
+                        </ul>
+                        <p><strong>⚠️ Remember to save your progress by clicking "Save Analysis" in the sidebar!</strong></p>
+                    </div>
+                    """, unsafe_allow_html=True)
                 col1, col2 = st.columns(2)
                 with col1:
                     st.subheader("Actionable Advice (AA)")
@@ -415,21 +600,157 @@ with col_main:
     if st.session_state.isps and any(isp.get('analysis_results') for isp in st.session_state.isps.values()):
         st.header("Analysis Results")
         all_metrics = Analyzer.calculate_all_metrics(st.session_state.isps, st.session_state.language)
+        
         if all_metrics:
+            # Funktion för att skapa säkra dataframes utan typkonverteringsproblem
+            def create_safe_dataframe(data):
+                # Konvertera alla värden till strängar för att undvika typkonverteringsproblem
+                for row in data:
+                    for key in row:
+                        row[key] = str(row[key])
+                return pd.DataFrame(data)
+            
+            # Table 1: Total Keyword Loss of Specificity
             st.subheader("Table 1: Total Keyword Loss of Specificity")
             table1_data = []
             for isp_id, metrics in all_metrics.items():
                 if metrics:
                     isp_data = st.session_state.isps[isp_id]
                     table1_data.append({
-                        'ISP': isp_id,
+                        'ISP': str(isp_id),
                         'ISP Name': isp_data.get('name', f"ISP {isp_id}"),
-                        'Actionable advice': metrics['total_aa'],
-                        'Other information': metrics['total_oi'],
-                        'Total': metrics['total_count'],
+                        'Actionable advice': str(metrics['total_aa']),
+                        'Other information': str(metrics['total_oi']),
+                        'Total': str(metrics['total_count']),
                         'Total keyword loss of specificity (%)': f"{metrics['total_loss_specificity']:.1f}%"
                     })
+            
             if table1_data:
-                st.table(pd.DataFrame(table1_data))
-        st.subheader("Export Results")
-        st.markdown(Exporter.to_excel(st.session_state.isps, st.session_state.language), unsafe_allow_html=True)
+                df1 = create_safe_dataframe(table1_data)
+                st.dataframe(df1, hide_index=True)
+            
+            # Table 2: Number of Keywords for Actionable Advice
+            st.subheader("Table 2: Number of Keywords for Actionable Advice")
+            keywords = KEYWORDS_SETS.get(st.session_state.language, {})
+            
+            table2_data = []
+            for isp_id in sorted(st.session_state.isps.keys()):
+                metrics = all_metrics.get(isp_id)
+                if metrics:
+                    row_data = {'ISP': str(isp_id)}
+                    for kw in keywords.keys():
+                        row_data[kw] = str(metrics['aa_count'].get(kw, 0))
+                    table2_data.append(row_data)
+            
+            if table2_data:
+
+                keyword_sums = {kw: 0 for kw in keywords.keys()}
+                for row in table2_data:
+                    for kw in keywords.keys():
+                        try:
+                            keyword_sums[kw] += int(row[kw])
+                        except (ValueError, TypeError):
+                            pass
+                
+                sum_row = {'ISP': 'Sum'}
+                total_aa_count = 0
+                for kw in keywords.keys():
+                    sum_row[kw] = str(keyword_sums[kw])
+                    total_aa_count += keyword_sums[kw]
+                table2_data.append(sum_row)
+                
+                if total_aa_count > 0:
+                    percent_row = {'ISP': '% of all AA'}
+                    for kw in keywords.keys():
+                        percent = (keyword_sums[kw] / total_aa_count) * 100 if total_aa_count > 0 else 0
+                        percent_row[kw] = f"{percent:.1f}%"
+                    table2_data.append(percent_row)
+                
+                df2 = create_safe_dataframe(table2_data)
+                st.dataframe(df2, hide_index=True)
+            
+            # Table 3: Number of Keywords for Other Information
+            st.subheader("Table 3: Number of Keywords for Other Information")
+            
+            table3_data = []
+            for isp_id in sorted(st.session_state.isps.keys()):
+                metrics = all_metrics.get(isp_id)
+                if metrics:
+                    row_data = {'ISP': str(isp_id)}
+                    for kw in keywords.keys():
+                        row_data[kw] = str(metrics['oi_count'].get(kw, 0))
+                    table3_data.append(row_data)
+            
+            if table3_data:
+                keyword_sums = {kw: 0 for kw in keywords.keys()}
+                for row in table3_data:
+                    for kw in keywords.keys():
+                        try:
+                            keyword_sums[kw] += int(row[kw])
+                        except (ValueError, TypeError):
+                            pass
+                
+                sum_row = {'ISP': 'Sum'}
+                total_oi_count = 0
+                for kw in keywords.keys():
+                    sum_row[kw] = str(keyword_sums[kw])
+                    total_oi_count += keyword_sums[kw]
+                table3_data.append(sum_row)
+                
+                if total_oi_count > 0:
+                    percent_row = {'ISP': '% of all OI'}
+                    for kw in keywords.keys():
+                        percent = (keyword_sums[kw] / total_oi_count) * 100 if total_oi_count > 0 else 0
+                        percent_row[kw] = f"{percent:.1f}%"
+                    table3_data.append(percent_row)
+                
+                df3 = create_safe_dataframe(table3_data)
+                st.dataframe(df3, hide_index=True)
+            
+            # Table 4: Keyword Loss of Specificity
+            st.subheader("Table 4: Keyword Loss of Specificity (%)")
+            
+            table4_data = []
+            for isp_id in sorted(st.session_state.isps.keys()):
+                metrics = all_metrics.get(isp_id)
+                if metrics:
+                    row_data = {'ISP': str(isp_id)}
+                    for kw in keywords.keys():
+                        loss = metrics['keyword_loss_specificity'].get(kw)
+                        if loss is not None:
+                            row_data[kw] = f"{loss:.1f}%"
+                        else:
+                            row_data[kw] = '-'
+                    table4_data.append(row_data)
+            
+            if table4_data:
+                aa_sums = {kw: 0 for kw in keywords.keys()}
+                oi_sums = {kw: 0 for kw in keywords.keys()}
+                
+                for isp_id in sorted(st.session_state.isps.keys()):
+                    metrics = all_metrics.get(isp_id)
+                    if metrics:
+                        for kw in keywords.keys():
+                            aa_sums[kw] += metrics['aa_count'].get(kw, 0)
+                            oi_sums[kw] += metrics['oi_count'].get(kw, 0)
+                
+                sum_row = {'ISP': 'Sum*'}
+                for kw in keywords.keys():
+                    total = aa_sums[kw] + oi_sums[kw]
+                    if total > 0:
+                        loss_specificity = (oi_sums[kw] / total) * 100
+                        sum_row[kw] = f"{loss_specificity:.1f}%"
+                    else:
+                        sum_row[kw] = '-'
+                table4_data.append(sum_row)
+                
+                note_row = {'ISP': 'Note: *Calculated using the sums in Tables 2 and 3'}
+                for kw in keywords.keys():
+                    note_row[kw] = ''
+                table4_data.append(note_row)
+                
+                df4 = create_safe_dataframe(table4_data)
+                st.dataframe(df4, hide_index=True)
+            
+            st.subheader("Export Results")
+            st.markdown(Exporter.to_excel(st.session_state.isps, st.session_state.language), unsafe_allow_html=True)

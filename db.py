@@ -1,4 +1,4 @@
-# db.py
+# db.py v2.0
 # This module encapsulates all database operations (using SQLite) for session state management.
 
 import sqlite3
@@ -32,7 +32,8 @@ class SessionDB:
             'current_isp_id': st.session_state.current_isp_id,
             'next_isp_id': st.session_state.next_isp_id,
             'analyzed_keywords': {str(k): list(v) for k, v in st.session_state.analyzed_keywords.items()},
-            'language': st.session_state.language
+            'language': st.session_state.language,
+            'context_mode': st.session_state.context_mode
         }
         json_data = json.dumps(session_data, ensure_ascii=False, indent=2)
         timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -66,6 +67,7 @@ class SessionDB:
             st.session_state.isps = session_data.get('isps', {})
             st.session_state.current_isp_id = session_data.get('current_isp_id')
             st.session_state.next_isp_id = session_data.get('next_isp_id', 1)
+            st.session_state.context_mode = session_data.get('context_mode', 'normal')
             
             # Convert analyzed keywords from list to set
             analyzed_keywords = session_data.get('analyzed_keywords', {})

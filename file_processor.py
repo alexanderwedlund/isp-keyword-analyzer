@@ -1,4 +1,4 @@
-# file_processor.py
+# file_processor.py v2.0
 # This module provides functionality to process and extract text from files.
 
 import PyPDF2

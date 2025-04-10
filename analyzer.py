@@ -1,4 +1,4 @@
-# analyzer.py
+# analyzer.py v2.0
 # This module contains the analysis functions such as splitting text into sentences,
 # finding keyword matches, and calculating analysis metrics.
 
@@ -19,8 +19,25 @@ class Analyzer:
         pattern = r'\b' + re.escape(keyword) + r'\b'
         for i, sentence in enumerate(sentences):
             matches = list(re.finditer(pattern, sentence, re.IGNORECASE))
+
+             # Get immediate context (1 sentence before/after)
             before_context = sentences[i-1] if i > 0 else ""
             after_context = sentences[i+1] if i < len(sentences)-1 else ""
+
+            # Get extended context (up to 5 sentences before/after)
+            extended_before_context = []
+            extended_after_context = []
+
+            # Get up to 5 sentences before
+            for j in range(i-5, i):
+                if j >= 0 and j != i-1:  # Skip the immediate context which is already stored separately
+                    extended_before_context.append(sentences[j])
+                
+            # Get up to 5 sentences after
+            for j in range(i+2, i+7):
+                if j < len(sentences):  # Skip the immediate context which is already stored separately
+                    extended_after_context.append(sentences[j])
+
             if matches:
                 for match in matches:
                     matching_sentences.append({
@@ -29,7 +46,9 @@ class Analyzer:
                         'end': match.end(),
                         'match_text': match.group(),
                         'before_context': before_context,
-                        'after_context': after_context
+                        'after_context': after_context,
+                        'extended_before_context': extended_before_context,
+                        'extended_after_context': extended_after_context
                     })
         return matching_sentences
 

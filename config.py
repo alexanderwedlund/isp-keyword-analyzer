@@ -1,4 +1,4 @@
-# config.py
+# config.py v2.0
 # This module contains configuration data for the application
 
 KEYWORDS_SETS = {
