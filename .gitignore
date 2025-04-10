@@ -9,3 +9,8 @@
 
 # Allow text files
 !*.txt
+
+# Allow PDF and Excel files in test_data
+!test_data/**/*.pdf
+!test_data/**/*.xls
+!test_data/**/*.xlsx
