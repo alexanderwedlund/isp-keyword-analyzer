@@ -1,0 +1,11 @@
+# Ignore everything
+*
+
+# Allow directory traversal
+!*/
+
+# Allow Python files
+!*.py
+
+# Allow text files
+!*.txt
