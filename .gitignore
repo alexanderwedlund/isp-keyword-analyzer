@@ -3,6 +3,4 @@
 !*.py
 !*.txt
 !test_data/**/*.pdf
-!test_data/**/*.xls
-!test_data/**/*.xlsx
 !test_data/**/*.txt
