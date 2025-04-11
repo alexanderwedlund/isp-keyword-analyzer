@@ -321,7 +321,7 @@ with col_main:
                 occurrence_count = sum(1 for i, item in enumerate(st.session_state.current_sentences)
                                        if i < st.session_state.current_index and item['sentence'] == current_sentence) + 1
                 st.write(f"Occurrence {occurrence_count} of keyword \"{st.session_state.current_keyword}\" in this sentence")
-                col1, col2, col3 = st.columns(3)
+                col1, col2, col3, col4 = st.columns(4)
                 with col1:
                     if st.button("Actionable Advice (AA)", key="aa_button", use_container_width=True):
                         occurrence_id = f"{current_item['sentence']}::{current_item['start']}::{current_item['end']}"
@@ -350,6 +350,13 @@ with col_main:
                     if st.button("Context", key="context_button", use_container_width=True):
                         st.session_state.show_context = not st.session_state.show_context
                         st.rerun()
+                with col4:
+                    if st.button("Skip", key="skip_button", use_container_width=True):
+                        if st.session_state.current_index < len(st.session_state.current_sentences):
+                            st.session_state.current_sentences.pop(st.session_state.current_index)
+                            if st.session_state.current_index >= len(st.session_state.current_sentences):
+                                st.session_state.current_index = max(0, len(st.session_state.current_sentences) - 1)
+                            st.rerun()
                 if st.session_state.show_context:
                     context_col1, context_col2 = st.columns(2)
                     with context_col1:

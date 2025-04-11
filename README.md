@@ -2,7 +2,7 @@
 
 ## Overview
 
-ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed to support master thesis research conducted by Alexander and Solan at Örebro University.
+ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Alexander Wedlund and Solan Shekany at Örebro University.
 
 ## Features
 
@@ -90,3 +90,4 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 
 ### Version 2.0
 - **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word.
+- **Visual Bug After ISP Analysis**: After an ISP has been fully analyzed, it may appear as though one more keyword remains. Pressing "Next Keyword" will loop the user back to the first keyword. This is only a visual issue—no additional keyword exists, and there's no need to press "Next Keyword".
