@@ -397,7 +397,7 @@ with col_main:
                         
                         # Add each extended before context sentence
                         for sentence in extended_before:
-                            context_html += f"<div style='background-color: #0f1117; padding: 5px; margin-bottom: 5px;'>{sentence}</div>"
+                            context_html += f"<div style='background-color: #994d00; color: white; padding: 5px; margin-bottom: 5px;'>{sentence}</div>"
                         
                         # Add the immediate before context
                         context_html += f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px; margin: 10px 0;'>"
@@ -416,7 +416,7 @@ with col_main:
                         
                         # Add each extended after context sentence
                         for sentence in extended_after:
-                            context_html += f"<div style='background-color: #0f1117; padding: 5px; margin-top: 5px;'>{sentence}</div>"
+                            context_html += f"<div style='background-color: #994d00; color: white; padding: 5px; margin-top: 5px;'>{sentence}</div>"
                         
                         context_html += "</div>"
                         
