@@ -1,6 +1,22 @@
+# Ignore everything by default
 *
+
+# Don't ignore directories
 !*/
+
+# Don't ignore specific file types
 !*.py
 !*.txt
+!*.md
+!requirements.txt
+!.gitignore
+
+# Don't ignore test data
 !test_data/**/*.pdf
 !test_data/**/*.txt
+
+# Handle model directory specifically
+!models/
+models/*
+!models/*.placeholder
+!models/*.txt

@@ -1,4 +1,4 @@
-# isp_analyzer.py v2.0
+# isp_analyzer.py v2.1
 # This is the main Streamlit application file that contains the UI logic.
 import streamlit as st
 import pandas as pd
@@ -8,6 +8,9 @@ from db import SessionDB
 from file_processor import FileProcessor
 from analyzer import Analyzer
 from exporter import Exporter
+
+# AI
+from ai_analyzer import AIAnalyzer
 
 # Initialize the SQLite database
 SessionDB.init_db()
@@ -52,6 +55,16 @@ if 'uploaded_filename' not in st.session_state:
     st.session_state.uploaded_filename = ""
 if 'file_uploaded' not in st.session_state:
     st.session_state.file_uploaded = False
+if 'ai_analysis_in_progress' not in st.session_state:
+    st.session_state.ai_analysis_in_progress = False
+if 'show_ai_current_warning' not in st.session_state:
+    st.session_state.show_ai_current_warning = False
+if 'show_ai_warning' not in st.session_state:
+    st.session_state.show_ai_warning = False
+if 'suggestion_in_progress' not in st.session_state:
+    st.session_state.suggestion_in_progress = False
+if 'current_suggestion' not in st.session_state:
+    st.session_state.current_suggestion = None  # Store the current suggestion
 
 def on_file_upload():
     """Callback when a file is uploaded to set the ISP name."""
@@ -215,6 +228,66 @@ with col_sidebar:
                 current_isp['analysis_results'][selected_keyword] = {'AA': [], 'OI': []}
             if st.button("Start analyzing this keyword"):
                 st.rerun()
+            
+        # AI-Assisted Analysis section
+        if current_isp:
+            st.subheader("AI-Assisted Analysis")
+            
+            # If any warning is active, show it instead of the buttons
+            if st.session_state.show_ai_current_warning:
+                st.warning(f"⚠️ WARNING: AI analysis of '{st.session_state.current_keyword}' may produce inaccurate classifications. Please review all results carefully after processing is complete.")
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button("Cancel", key="cancel_ai_current", use_container_width=True):
+                        st.session_state.show_ai_current_warning = False
+                        st.rerun()
+                with c2:
+                    if st.button("I understand, proceed", key="confirm_ai_current", use_container_width=True):
+                        st.session_state.show_ai_current_warning = False
+                        st.session_state.ai_analysis_in_progress = True
+                        with st.spinner(f"AI analyzing '{st.session_state.current_keyword}'..."):
+                            current_isp = AIAnalyzer.ai_analyze_keyword(current_isp, st.session_state.current_keyword)
+                            st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(st.session_state.current_keyword)
+                        st.session_state.ai_analysis_in_progress = False
+                        st.success(f"AI analysis of '{st.session_state.current_keyword}' complete! Please review the results carefully.")
+                        st.rerun()
+                        
+            elif st.session_state.show_ai_warning:
+                st.warning("⚠️ WARNING: Bulk AI analysis may produce inaccurate classifications. Please review all results carefully after processing is complete.")
+                
+                c1, c2 = st.columns(2)
+                with c1:
+                    if st.button("Cancel", key="cancel_ai_all", use_container_width=True):
+                        st.session_state.show_ai_warning = False
+                        st.rerun()
+                with c2:
+                    if st.button("I understand, proceed", key="confirm_ai_all", use_container_width=True):
+                        st.session_state.show_ai_warning = False
+                        st.session_state.ai_analysis_in_progress = True
+                        with st.spinner("AI analyzing all keywords..."):
+                            all_keywords = list(keywords.keys())
+                            remaining_keywords = [k for k in all_keywords if k not in st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())]
+                            current_isp = AIAnalyzer.ai_analyze_all_keywords(current_isp, remaining_keywords)
+                            for keyword in remaining_keywords:
+                                st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(keyword)
+                        st.session_state.ai_analysis_in_progress = False
+                        st.success("AI analysis complete! Please review the results carefully.")
+                        st.balloons()
+                        st.rerun()
+                        
+            else:
+                # Show the regular buttons if no warnings are active
+                ai_col1, ai_col2 = st.columns(2)
+                with ai_col1:
+                    if st.button("Analyze Current Keyword with AI", key="ai_current_button", use_container_width=True):
+                        st.session_state.show_ai_current_warning = True
+                        st.rerun()
+                
+                with ai_col2:
+                    if st.button("Analyze All Keywords with AI", key="ai_all_button", use_container_width=True):
+                        st.session_state.show_ai_warning = True
+                        st.rerun()
     
     # Save/Load Session
     st.subheader("Save/Load Session")
@@ -296,6 +369,11 @@ with col_sidebar:
 
 # Main content area
 with col_main:
+    
+    # AI
+    if st.session_state.ai_analysis_in_progress:
+        st.info("AI analysis in progress... Please wait.")
+
     current_isp = get_current_isp()
     if current_isp and st.session_state.current_keyword:
         st.header(f"Analyzing '{st.session_state.current_keyword}' in {current_isp.get('name', f'ISP {st.session_state.current_isp_id}')}")
@@ -321,7 +399,9 @@ with col_main:
                 occurrence_count = sum(1 for i, item in enumerate(st.session_state.current_sentences)
                                        if i < st.session_state.current_index and item['sentence'] == current_sentence) + 1
                 st.write(f"Occurrence {occurrence_count} of keyword \"{st.session_state.current_keyword}\" in this sentence")
-                col1, col2, col3, col4 = st.columns(4)
+                
+                # Modified layout to include Suggestion button
+                col1, col2, col3, col4, col5 = st.columns(5)
                 with col1:
                     if st.button("Actionable Advice (AA)", key="aa_button", use_container_width=True):
                         occurrence_id = f"{current_item['sentence']}::{current_item['start']}::{current_item['end']}"
@@ -335,6 +415,8 @@ with col_main:
                             current_isp['analysis_results'][st.session_state.current_keyword]['OI'].remove(occurrence_id)
                         st.session_state.classifications.append(('AA', occurrence_id))
                         st.session_state.current_index += 1
+                        st.session_state.current_suggestion = None  # Clear any suggestion
+                        st.session_state.suggestion_in_progress = False
                         st.rerun()
                 with col2:
                     if st.button("Other Information (OI)", key="oi_button", use_container_width=True):
@@ -345,18 +427,87 @@ with col_main:
                             current_isp['analysis_results'][st.session_state.current_keyword]['AA'].remove(occurrence_id)
                         st.session_state.classifications.append(('OI', occurrence_id))
                         st.session_state.current_index += 1
+                        st.session_state.current_suggestion = None  # Clear any suggestion
+                        st.session_state.suggestion_in_progress = False
                         st.rerun()
                 with col3:
                     if st.button("Context", key="context_button", use_container_width=True):
                         st.session_state.show_context = not st.session_state.show_context
                         st.rerun()
                 with col4:
+                    if st.button("Suggestion", key="suggestion_button", use_container_width=True):
+                        st.session_state.suggestion_in_progress = True
+                        st.session_state.current_suggestion = None  # Clear previous suggestion
+                        st.rerun()
+                with col5:
                     if st.button("Skip", key="skip_button", use_container_width=True):
                         if st.session_state.current_index < len(st.session_state.current_sentences):
                             st.session_state.current_sentences.pop(st.session_state.current_index)
                             if st.session_state.current_index >= len(st.session_state.current_sentences):
                                 st.session_state.current_index = max(0, len(st.session_state.current_sentences) - 1)
+                            st.session_state.current_suggestion = None  # Clear any suggestion
+                            st.session_state.suggestion_in_progress = False
                             st.rerun()
+                
+                # Display suggestion if requested
+                if st.session_state.suggestion_in_progress:
+                    if not st.session_state.current_suggestion:
+                        with st.spinner("Analyzing sentence..."):
+                            # Use AIAnalyzer for the suggestion instead of local function
+                            st.session_state.current_suggestion = AIAnalyzer.get_classification_suggestion(
+                                current_item, 
+                                st.session_state.current_keyword
+                            )
+                    
+                    if st.session_state.current_suggestion:
+                        # Create a styled box for the suggestion
+                        suggestion = st.session_state.current_suggestion
+                        classification = suggestion["classification"]
+                        rationale = suggestion["rationale"]
+                        
+                        # Set colors based on classification
+                        if classification == "AA":
+                            box_color = "#1E6823"  # Green for AA
+                            text_color = "white"
+                        else:
+                            box_color = "#A93226"  # Red for OI
+                            text_color = "white"
+                        
+                        st.markdown(f"""
+                        <div style="margin: 15px 0; padding: 10px; border-radius: 5px; background-color: {box_color}; color: {text_color};">
+                            <h3 style="margin-top: 0;">Suggested Classification: {classification}</h3>
+                            <p><strong>Rationale:</strong> {rationale}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Buttons to accept suggestion
+                        accept_col1, accept_col2 = st.columns(2)
+                        with accept_col1:
+                            if st.button("Accept Suggestion", key="accept_suggestion", use_container_width=True):
+                                occurrence_id = f"{current_item['sentence']}::{current_item['start']}::{current_item['end']}"
+                                
+                                if classification == "AA":
+                                    if occurrence_id not in current_isp['analysis_results'][st.session_state.current_keyword]['AA']:
+                                        current_isp['analysis_results'][st.session_state.current_keyword]['AA'].append(occurrence_id)
+                                    if occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['OI']:
+                                        current_isp['analysis_results'][st.session_state.current_keyword]['OI'].remove(occurrence_id)
+                                else:  # OI
+                                    if occurrence_id not in current_isp['analysis_results'][st.session_state.current_keyword]['OI']:
+                                        current_isp['analysis_results'][st.session_state.current_keyword]['OI'].append(occurrence_id)
+                                    if occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['AA']:
+                                        current_isp['analysis_results'][st.session_state.current_keyword]['AA'].remove(occurrence_id)
+                                        
+                                st.session_state.classifications.append((classification, occurrence_id))
+                                st.session_state.current_index += 1
+                                st.session_state.current_suggestion = None  # Clear suggestion
+                                st.session_state.suggestion_in_progress = False
+                                st.rerun()
+                        with accept_col2:
+                            if st.button("Cancel", key="cancel_suggestion", use_container_width=True):
+                                st.session_state.current_suggestion = None
+                                st.session_state.suggestion_in_progress = False
+                                st.rerun()
+                
                 if st.session_state.show_context:
                     context_col1, context_col2 = st.columns(2)
                     with context_col1:
@@ -425,6 +576,8 @@ with col_main:
                 with col_back:
                     if st.button("Back", key="back_button", use_container_width=True) and st.session_state.current_index > 0:
                         st.session_state.current_index -= 1
+                        st.session_state.current_suggestion = None  # Clear any suggestion
+                        st.session_state.suggestion_in_progress = False
                         st.rerun()
                 with col_forward:
                     if st.button("Forward", key="forward_button", use_container_width=True) and st.session_state.current_index < total_sentences - 1:
@@ -433,6 +586,8 @@ with col_main:
                                          occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['OI'])
                         if is_classified:
                             st.session_state.current_index += 1
+                            st.session_state.current_suggestion = None  # Clear any suggestion
+                            st.session_state.suggestion_in_progress = False
                             st.rerun()
                         else:
                             st.warning("Please classify the current sentence before moving forward.")
@@ -600,8 +755,9 @@ with col_main:
            - **Actionable Advice (AA)**
            - **Other Information (OI)**
         4. **Use context when needed**: Toggle the Context button to view surrounding sentences (previous and next) for better understanding of how the keyword is used in its larger textual environment
-        5. **Save your progress**: You can save your session anytime
-        6. **Export data**: Generate an Excel file with analysis results
+        5. **Get classification assistance**: Click the Suggestion button to receive AI-driven classification recommendations and rationale
+        6. **Save your progress**: You can save your session anytime
+        7. **Export data**: Generate an Excel file with analysis results
         """)
     
     if st.session_state.isps and any(isp.get('analysis_results') for isp in st.session_state.isps.values()):
