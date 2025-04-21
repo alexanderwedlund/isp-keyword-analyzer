@@ -27,53 +27,66 @@ class SentenceClassifier:
         extended_before = "\n".join(sentence_data.get('extended_before_context', []))
         extended_after = "\n".join(sentence_data.get('extended_after_context', []))
         
+        # Create highlighted version of the sentence with keyword in brackets
+        start_pos = sentence_data['start']
+        end_pos = sentence_data['end']
+        match_text = sentence_data['match_text']
+        
+        highlighted_sentence = (
+            sentence[:start_pos] + 
+            "[" + match_text + "]" + 
+            sentence[end_pos:]
+        )
+        
         # Create the prompt in chat format
         prompt = f"""Classification task for Information Security Policy (ISP) analysis:
 
-Please classify the following sentence as either:
-- 'AA' (Actionable Advice): Sentences that contain sufficient information to act upon without any ambiguity.
-- 'OI' (Other Information): Sentences that are ambiguous, too abstract, or lack specific instructions.
+    Please classify the following sentence as either:
+    - 'AA' (Actionable Advice): Sentences that contain sufficient information to act upon without any ambiguity.
+    - 'OI' (Other Information): Sentences that are ambiguous, too abstract, or lack specific instructions.
 
-IMPORTANT: Thoroughly analyze the FULL CONTEXT before making your classification. Context often provides critical clues about whether a statement should be classified as AA or OI.
+    IMPORTANT: Focus specifically on classifying the sentence containing the HIGHLIGHTED KEYWORD in [square brackets]. This is the target sentence you need to classify.
 
-Evaluation Criteria:
-1. Actionability: Can an employee take concrete, specific actions based solely on this information? AA requires clear, implementable steps.
-2. Clarity: Is the information presented without ambiguity? AA statements should have precise requirements with minimal room for interpretation.
-3. Contextual relevance: Does the surrounding context modify how the statement should be interpreted? A seemingly vague statement may become actionable when considered with its context.
+    Thoroughly analyze the FULL CONTEXT before making your classification. Context often provides critical clues about whether a statement should be classified as AA or OI.
 
-Guidelines:
-- Actionable Advice (AA): Specific, unambiguous instructions that employees can directly implement without interpretation. 
-  Examples: "Passwords must not be given over the phone", "Read e-mail that does not need to be saved should be deleted"
+    Evaluation Criteria:
+    1. Actionability: Can an employee take concrete, specific actions based solely on this information? AA requires clear, implementable steps.
+    2. Clarity: Is the information presented without ambiguity? AA statements should have precise requirements with minimal room for interpretation.
+    3. Contextual relevance: Does the surrounding context modify how the statement should be interpreted? A seemingly vague statement may become actionable when considered with its context.
 
-- Other Information (OI): This includes:
-  1. Ambiguous instructions (e.g., "orders must be submitted to IT in good time" - "good time" is subjective)
-  2. Vague guidance (e.g., "all staff must exercise caution when using e-mail" - doesn't specify how)
-  3. Abstract statements that indicate general direction but aren't directly actionable
-  4. Strategic statements despite containing relevant keywords
+    Guidelines:
+    - Actionable Advice (AA): Specific, unambiguous instructions that employees can directly implement without interpretation. 
+    Examples: "Passwords must not be given over the phone", "Read e-mail that does not need to be saved should be deleted"
 
-Keyword being analyzed: {keyword}
+    - Other Information (OI): This includes:
+    1. Ambiguous instructions (e.g., "orders must be submitted to IT in good time" - "good time" is subjective)
+    2. Vague guidance (e.g., "all staff must exercise caution when using e-mail" - doesn't specify how)
+    3. Abstract statements that indicate general direction but aren't directly actionable
+    4. Strategic statements despite containing relevant keywords
 
-FULL CONTEXT ANALYSIS:
-Previous sentences: 
-{extended_before}
+    Keyword being analyzed: {keyword}
 
-Immediate previous context: 
-{before_context}
+    FULL CONTEXT ANALYSIS:
+    Previous sentences: 
+    {extended_before}
 
-TARGET SENTENCE TO CLASSIFY: "{sentence}"
+    Immediate previous context: 
+    {before_context}
 
-Immediate following context: 
-{after_context}
+    TARGET SENTENCE TO CLASSIFY: "{highlighted_sentence}"
 
-Following sentences:
-{extended_after}
+    Immediate following context: 
+    {after_context}
 
-Classification Process:
-1. First, examine the complete context carefully
-2. Apply the evaluation criteria (actionability, clarity, contextual relevance)
-3. Determine if the TARGET SENTENCE provides clear, actionable guidance when considered in its full context
+    Following sentences:
+    {extended_after}
 
-Provide ONLY "AA" or "OI" as your response:"""
+    Classification Process:
+    1. First, examine the complete context carefully
+    2. Apply the evaluation criteria (actionability, clarity, contextual relevance)
+    3. Determine if the TARGET SENTENCE provides clear, actionable guidance when considered in its full context
+
+    Provide ONLY "AA" or "OI" as your response:"""
         
         try:
             # Using chat completion format
@@ -112,22 +125,34 @@ Provide ONLY "AA" or "OI" as your response:"""
         context_before = sentence_data.get('before_context', '')
         context_after = sentence_data.get('after_context', '')
         
+        # Create highlighted version of the sentence with keyword in brackets
+        start_pos = sentence_data['start']
+        end_pos = sentence_data['end']
+        match_text = sentence_data['match_text']
+        
+        highlighted_sentence = (
+            sentence[:start_pos] + 
+            "[" + match_text + "]" + 
+            sentence[end_pos:]
+        )
+        
         # Create a prompt to get the rationale
         rationale_prompt = f"""Classification explanation task:
 
-You previously classified this sentence as '{classification}' in an Information Security Policy.
-Please explain WHY you classified it this way in 3-5 sentences. Focus on:
-1. The specific language that makes it actionable or not
-2. The clarity/ambiguity of instructions
-3. How the context affects interpretation
+    You previously classified this sentence as '{classification}' in an Information Security Policy.
+    Please explain WHY you classified it this way in 3-5 sentences. Focus on:
+    1. The specific language that makes it actionable or not
+    2. The clarity/ambiguity of instructions
+    3. How the context affects interpretation
 
-Keyword being analyzed: {keyword}
+    Keyword being analyzed: {keyword}
 
-Context before: {context_before}
-TARGET SENTENCE: "{sentence}"
-Context after: {context_after}
+    Context before: {context_before}
+    TARGET SENTENCE: "{highlighted_sentence}"
+    Context after: {context_after}
 
-Your explanation (3-5 sentences):"""
+    IMPORTANT: Provide your explanation in {st.session_state.language} language. Write 3-5 sentences in {st.session_state.language}:
+    """
         
         try:
             # Get the rationale explanation
@@ -153,13 +178,24 @@ Your explanation (3-5 sentences):"""
         """Rule-based fallback classification method."""
         sentence = sentence_data['sentence'].lower()
         
+        # Create highlighted version of the sentence with keyword in brackets
+        start_pos = sentence_data['start']
+        end_pos = sentence_data['end']
+        match_text = sentence_data['match_text']
+        
+        highlighted_sentence = (
+            sentence[:start_pos] + 
+            "[" + match_text + "]" + 
+            sentence[end_pos:]
+        )
+        
         # Check for action words
         action_markers = ["must ", "shall ", "required to ", "always ", "never ", 
-                          "do not ", "should ", "is prohibited", "is not permitted"]
+                        "do not ", "should ", "is prohibited", "is not permitted"]
         
         # Check for vague terms
         vague_terms = ["good time", "exercise caution", "be careful", "as appropriate",
-                      "when necessary", "as needed", "reasonable", "proper"]
+                    "when necessary", "as needed", "reasonable", "proper"]
         
         # Check if sentence contains action markers without vague terms
         is_actionable = False
@@ -172,15 +208,15 @@ Your explanation (3-5 sentences):"""
         # Generate a simple rationale based on rule-based classification
         if classification == "AA":
             action_words = [marker for marker in action_markers if marker in sentence]
-            rationale = f"This sentence contains clear action words ({', '.join(action_words)}) without ambiguous terms, making it specific enough to be actionable. The instruction is clear and provides concrete guidance that can be directly implemented."
+            rationale = f"This sentence contains clear action words ({', '.join(action_words)}) without ambiguous terms, making it specific enough to be actionable. The instruction is clear and provides concrete guidance that can be directly implemented. The highlighted keyword [{match_text}] appears in a context that provides definite direction."
         else:
             if any(term in sentence for term in vague_terms):
                 vague_found = [term for term in vague_terms if term in sentence]
-                rationale = f"Although the sentence contains the keyword '{keyword}', it uses vague terminology ({', '.join(vague_found)}) that makes the guidance ambiguous. This lack of specificity means it cannot be directly acted upon without additional interpretation."
+                rationale = f"Although the sentence contains the highlighted keyword [{match_text}], it uses vague terminology ({', '.join(vague_found)}) that makes the guidance ambiguous. This lack of specificity means it cannot be directly acted upon without additional interpretation."
             elif not any(marker in sentence for marker in action_markers):
-                rationale = f"This sentence lacks clear action words that would make it actionable. It appears to be informational rather than providing specific guidance. Without explicit direction on what to do, it should be classified as Other Information."
+                rationale = f"This sentence lacks clear action words that would make it actionable. The highlighted keyword [{match_text}] appears in a context that is more informational rather than providing specific guidance. Without explicit direction on what to do, it should be classified as Other Information."
             else:
-                rationale = f"While the sentence contains the keyword '{keyword}', it does not provide clear, specific instructions that can be directly implemented. The statement is more informational than actionable."
+                rationale = f"While the sentence contains the highlighted keyword [{match_text}], it does not provide clear, specific instructions that can be directly implemented. The statement is more informational than actionable."
         
         return {
             "classification": classification,

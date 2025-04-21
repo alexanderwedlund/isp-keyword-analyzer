@@ -197,7 +197,7 @@ class ExcelExporter:
         """Create the raw data worksheet with all occurrences."""
         worksheet = workbook.add_worksheet('Raw Data')
         headers = ['ISP ID', 'ISP Name', 'Keyword', 'Classification', 
-                  'Sentence', 'Keyword Instance', 'Position']
+                'Sentence', 'Keyword Instance', 'Position']
         
         for col, header in enumerate(headers):
             worksheet.write(0, col, header)
@@ -217,11 +217,19 @@ class ExcelExporter:
                         start_pos = int(parts[1])
                         end_pos = int(parts[2])
                         keyword_instance = sentence[start_pos:end_pos]
+                        
+                        # Create highlighted sentence with brackets
+                        highlighted_sentence = (
+                            sentence[:start_pos] +
+                            '[' + keyword_instance + ']' +
+                            sentence[end_pos:]
+                        )
+                        
                         worksheet.write(row, 0, isp_id)
                         worksheet.write(row, 1, isp_name)
                         worksheet.write(row, 2, keyword)
                         worksheet.write(row, 3, 'AA')
-                        worksheet.write(row, 4, sentence)
+                        worksheet.write(row, 4, highlighted_sentence)  # Use highlighted sentence
                         worksheet.write(row, 5, keyword_instance)
                         worksheet.write(row, 6, f"{start_pos}-{end_pos}")
                         row += 1
@@ -234,11 +242,19 @@ class ExcelExporter:
                         start_pos = int(parts[1])
                         end_pos = int(parts[2])
                         keyword_instance = sentence[start_pos:end_pos]
+                        
+                        # Create highlighted sentence with brackets
+                        highlighted_sentence = (
+                            sentence[:start_pos] +
+                            '[' + keyword_instance + ']' +
+                            sentence[end_pos:]
+                        )
+                        
                         worksheet.write(row, 0, isp_id)
                         worksheet.write(row, 1, isp_name)
                         worksheet.write(row, 2, keyword)
                         worksheet.write(row, 3, 'OI')
-                        worksheet.write(row, 4, sentence)
+                        worksheet.write(row, 4, highlighted_sentence)  # Use highlighted sentence
                         worksheet.write(row, 5, keyword_instance)
                         worksheet.write(row, 6, f"{start_pos}-{end_pos}")
                         row += 1
