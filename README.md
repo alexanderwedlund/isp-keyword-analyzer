@@ -2,7 +2,7 @@
 
 ## Overview
 
-ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Alexander Wedlund and Solan Shekany at Örebro University.
+ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Alexander Wedlund and Solan Shekany at Örebro University (2025).
 
 ## Features
 
@@ -12,10 +12,11 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
   - Actionable Advice (AA): Specific, unambiguous instructions
   - Other Information (OI): General, ambiguous, or non-actionable content
 - Calculation of "Keyword Loss of Specificity" metrics both for individual keywords and overall
-- Support for Swedish and English language ISPs
+- Built-in support for Swedish and English language ISPs, with the ability to add more languages through configuration
 - Session management for saving and resuming analysis
 - Excel export of analysis results with detailed metrics
 - Context viewing functionality that displays surrounding sentences when analyzing keywords to improve classification accuracy
+- AI-assisted classification of sentences for faster analysis
 
 ## Installation
 
@@ -37,6 +38,8 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
    pip install -r requirements.txt
    ```
 
+3. For AI-assisted classification, a Gemma model placeholder and download link are provided in the `/models` directory. Follow the instructions there to download the model from Kaggle.
+
 ## Usage
 
 ### Running the Application
@@ -44,13 +47,13 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 To start the ISP Analyzer application, run the following command in Windows PowerShell:
 
 ```
-python -m streamlit run isp_keyword_analyzer.py
+python -m streamlit run app.py
 ```
 
 For UNIX/Linux/macOS systems, use:
 
 ```
-python3 -m streamlit run isp_keyword_analyzer.py
+python3 -m streamlit run app.py
 ```
 
 ### Analysis Workflow
@@ -60,9 +63,28 @@ python3 -m streamlit run isp_keyword_analyzer.py
 3. **Classify sentences**: For each sentence containing the keyword, determine if it provides:
    - Actionable Advice (AA): Clear, specific guidance
    - Other Information (OI): General information or ambiguous instructions
-4. **Use context when needed**: Toggle the Context button to view surrounding sentences (previous and next) for better understanding of how the keyword is used in its larger textual environment
-5. **Save your progress**: You can save your session anytime
-6. **Export data**: Generate an Excel file with analysis results
+4. **Use AI-assisted classification**: Use the AI feature to speed up the classification process
+   - Select "Analyze Current Keyword with AI" to analyze the current keyword
+   - Select "Analyze All Keywords with AI" to analyze all remaining keywords
+   - **Note:** AI classification should be viewed as a starting point and results should be carefully reviewed
+5. **Use context when needed**: Toggle the Context button to view surrounding sentences for better understanding of how the keyword is used in its larger textual environment
+6. **Save your progress**: You can save your session anytime
+7. **Export data**: Generate an Excel file with analysis results
+
+## AI-assisted Classification
+
+ISP Keyword Analyzer includes AI-assisted classification that can:
+- Analyze individual keywords or all remaining keywords
+- Suggest classifications based on sentence context and language
+- Significantly speed up the analysis process
+
+### Important notes about the AI functionality:
+
+- **Use with caution**: AI classifications should always be reviewed by a human for accuracy
+- **Starting point, not final answer**: Consider AI suggestions as a starting point, not a definitive answer
+- **Performance considerations**: AI analysis uses local computation and may be slow on computers without GPU support
+
+When using "Analyze Current Keyword with AI" or "Analyze All Keywords with AI", the tool will warn you about potential errors and ask for confirmation before proceeding.
 
 ## Technical Details
 
@@ -71,6 +93,7 @@ The application is built using:
 - PyPDF2 for PDF document processing
 - SQLite for session state management
 - Pandas and XlsxWriter for data manipulation and export
+- Llama-cpp-python for local AI inference
 
 ## Methodology
 
@@ -88,6 +111,6 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 
 ## Known Issues
 
-### Version 2.0
 - **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word.
-- **Visual Bug After ISP Analysis**: After an ISP has been fully analyzed, it may appear as though one more keyword remains. Pressing "Next Keyword" will loop the user back to the first keyword. This is only a visual issue—no additional keyword exists, and there's no need to press "Next Keyword".
+- AI classifications may sometimes be incorrect, especially for complex sentences or ambiguous contexts
+- GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be slow

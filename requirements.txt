@@ -1,4 +1,14 @@
+# Core project dependencies
 streamlit
 pandas
 PyPDF2
 XlsxWriter
+
+# Data handling and analysis
+numpy
+
+# For AI functionality (optional but recommended)
+llama-cpp-python
+
+# For visualization and export
+matplotlib
