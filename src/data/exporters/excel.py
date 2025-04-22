@@ -10,7 +10,7 @@ from src.config.settings import KeywordSets
 class ExcelExporter:
     """Responsible for exporting analysis results to Excel format."""
     
-    def __init__(self, isps: Dict[int, Dict[str, Any]], language: str):
+    def __init__(self, isps: Dict[int, Dict[str, Any]], language: str, classification_metadata: Dict = None):
         """Initialize the exporter with ISP data and language."""
         self.isps = isps
         self.language = language
@@ -18,6 +18,7 @@ class ExcelExporter:
         self.all_metrics = MetricsCalculator.calculate_all_metrics(isps, self.keywords)
         self.sorted_isps = sorted(isps.items(), key=lambda x: x[0])
         self.isp_ids = [isp_id for isp_id, _ in self.sorted_isps]
+        self.classification_metadata = classification_metadata or {}
     
     def generate_excel(self) -> BytesIO:
         """Generate an Excel file with the analysis results."""
@@ -197,7 +198,7 @@ class ExcelExporter:
         """Create the raw data worksheet with all occurrences."""
         worksheet = workbook.add_worksheet('Raw Data')
         headers = ['ISP ID', 'ISP Name', 'Keyword', 'Classification', 
-                'Sentence', 'Keyword Instance', 'Position']
+                'Sentence', 'Keyword Instance', 'Position', 'Method', 'Rationale']
         
         for col, header in enumerate(headers):
             worksheet.write(0, col, header)
@@ -225,6 +226,12 @@ class ExcelExporter:
                             sentence[end_pos:]
                         )
                         
+                        # Get classification metadata
+                        metadata_key = f"{isp_id}::{keyword}::{occurrence}"
+                        metadata = self.classification_metadata.get(metadata_key, {})
+                        method = metadata.get("method", "Manual")  # Default to Manual if not specified
+                        rationale = metadata.get("rationale", "")  # Empty string if no rationale
+                        
                         worksheet.write(row, 0, isp_id)
                         worksheet.write(row, 1, isp_name)
                         worksheet.write(row, 2, keyword)
@@ -232,6 +239,8 @@ class ExcelExporter:
                         worksheet.write(row, 4, highlighted_sentence)  # Use highlighted sentence
                         worksheet.write(row, 5, keyword_instance)
                         worksheet.write(row, 6, f"{start_pos}-{end_pos}")
+                        worksheet.write(row, 7, method)
+                        worksheet.write(row, 8, rationale)
                         row += 1
                         
                 # Process OI occurrences
@@ -250,6 +259,12 @@ class ExcelExporter:
                             sentence[end_pos:]
                         )
                         
+                        # Get classification metadata
+                        metadata_key = f"{isp_id}::{keyword}::{occurrence}"
+                        metadata = self.classification_metadata.get(metadata_key, {})
+                        method = metadata.get("method", "Manual")  # Default to Manual if not specified
+                        rationale = metadata.get("rationale", "")  # Empty string if no rationale
+                        
                         worksheet.write(row, 0, isp_id)
                         worksheet.write(row, 1, isp_name)
                         worksheet.write(row, 2, keyword)
@@ -257,6 +272,8 @@ class ExcelExporter:
                         worksheet.write(row, 4, highlighted_sentence)  # Use highlighted sentence
                         worksheet.write(row, 5, keyword_instance)
                         worksheet.write(row, 6, f"{start_pos}-{end_pos}")
+                        worksheet.write(row, 7, method)
+                        worksheet.write(row, 8, rationale)
                         row += 1
     
     def get_download_link(self) -> str:

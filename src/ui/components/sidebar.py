@@ -300,8 +300,13 @@ def handle_ai_analysis_for_keyword(current_isp, keyword):
     def update_progress(progress, text):
         progress_bar.progress(progress, text=text)
     
-    # Classify sentences
-    classifications = classifier.classify_sentences(sentences, keyword, update_progress)
+    # First, get classifications with rationales
+    classification_results = []
+    for i, item in enumerate(sentences):
+        update_progress(i / len(sentences), f"Analyzing {i+1}/{len(sentences)}")
+        result = classifier.classifier.get_classification_with_rationale(item, keyword)
+        classification_results.append(result)
+        update_progress((i + 1) / len(sentences), f"Completed {i+1}/{len(sentences)}")
     
     # Process results
     if keyword not in current_isp['analysis_results']:
@@ -310,8 +315,18 @@ def handle_ai_analysis_for_keyword(current_isp, keyword):
     aa_count = 0
     oi_count = 0
     
-    for item, classification in zip(sentences, classifications):
+    for item, result in zip(sentences, classification_results):
         occurrence_id = f"{item['sentence']}::{item['start']}::{item['end']}"
+        classification = result['classification']
+        rationale = result['rationale']
+        
+        # Store metadata for this classification
+        metadata_key = f"{st.session_state.current_isp_id}::{keyword}::{occurrence_id}"
+        st.session_state.classification_metadata[metadata_key] = {
+            "method": "AI",
+            "rationale": rationale
+        }
+        
         if classification == "AA":
             aa_count += 1
             if occurrence_id not in current_isp['analysis_results'][keyword]['AA']:
@@ -367,18 +382,29 @@ def handle_ai_analysis_for_all_keywords(current_isp, keywords):
                 # Setup a simple progress indicator
                 inner_progress = st.progress(0)
                 
-                def update_progress(progress, text):
-                    inner_progress.progress(progress)
-                
                 # Classify sentences
-                classifications = classifier.classify_sentences(sentences, keyword, update_progress)
+                classifications = []
+                for i, item in enumerate(sentences):
+                    result = classifier.classifier.get_classification_with_rationale(item, keyword)
+                    classifications.append(result)
+                    inner_progress.progress((i + 1) / len(sentences))
                 
                 # Process results
                 if keyword not in current_isp['analysis_results']:
                     current_isp['analysis_results'][keyword] = {'AA': [], 'OI': []}
                 
-                for item, classification in zip(sentences, classifications):
+                for item, result in zip(sentences, classifications):
                     occurrence_id = f"{item['sentence']}::{item['start']}::{item['end']}"
+                    classification = result['classification']
+                    rationale = result['rationale']
+                    
+                    # Store metadata for this classification
+                    metadata_key = f"{st.session_state.current_isp_id}::{keyword}::{occurrence_id}"
+                    st.session_state.classification_metadata[metadata_key] = {
+                        "method": "AI",
+                        "rationale": rationale
+                    }
+                    
                     if classification == "AA":
                         if occurrence_id not in current_isp['analysis_results'][keyword]['AA']:
                             current_isp['analysis_results'][keyword]['AA'].append(occurrence_id)

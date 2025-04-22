@@ -67,7 +67,8 @@ def initialize_app():
         st.session_state.current_suggestion = None
     if 'all_keywords_analyzed' not in st.session_state:
         st.session_state.all_keywords_analyzed = False
-    
+    if 'classification_metadata' not in st.session_state:
+        st.session_state.classification_metadata = {}  # Format: {"{isp_id}::{keyword}::{sentence}::{start}::{end}": {"method": "...", "rationale": "..."}}
     return session_manager
 
 def main():

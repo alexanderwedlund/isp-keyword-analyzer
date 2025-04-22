@@ -47,11 +47,11 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
     
     with col1:
         if st.button("Actionable Advice (AA)", key="aa_button", use_container_width=True):
-            handle_classification(current_isp, current_item, "AA")
+            handle_classification(current_isp, current_item, "AA", method="Manual")
             
     with col2:
         if st.button("Other Information (OI)", key="oi_button", use_container_width=True):
-            handle_classification(current_isp, current_item, "OI")
+            handle_classification(current_isp, current_item, "OI", method="Manual")
             
     with col3:
         if st.button("Context", key="context_button", use_container_width=True):
@@ -104,8 +104,16 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
                 st.warning("Please classify the current sentence before moving forward.")
 
 
-def handle_classification(current_isp: Dict[str, Any], current_item: Dict[str, Any], classification: str) -> None:
-    """Handle classification of a sentence."""
+def handle_classification(current_isp: Dict[str, Any], current_item: Dict[str, Any], classification: str, method: str = "Manual", rationale: str = None) -> None:
+    """Handle classification of a sentence.
+    
+    Args:
+        current_isp: Dictionary containing current ISP data
+        current_item: Dictionary with current sentence data
+        classification: Classification category ("AA" or "OI")
+        method: Method used for classification ("Manual", "AI", or "Suggestion")
+        rationale: Rationale for classification (if provided by AI)
+    """
     occurrence_id = f"{current_item['sentence']}::{current_item['start']}::{current_item['end']}"
     
     if 'analysis_results' not in current_isp:
@@ -123,6 +131,13 @@ def handle_classification(current_isp: Dict[str, Any], current_item: Dict[str, A
             current_isp['analysis_results'][st.session_state.current_keyword]['OI'].append(occurrence_id)
         if occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['AA']:
             current_isp['analysis_results'][st.session_state.current_keyword]['AA'].remove(occurrence_id)
+    
+    # Store metadata about this classification
+    metadata_key = f"{st.session_state.current_isp_id}::{st.session_state.current_keyword}::{occurrence_id}"
+    st.session_state.classification_metadata[metadata_key] = {
+        "method": method,
+        "rationale": rationale
+    }
     
     st.session_state.classifications.append((classification, occurrence_id))
     st.session_state.current_index += 1
@@ -177,7 +192,8 @@ def render_suggestion_ui(current_isp: Dict[str, Any], current_item: Dict[str, An
         accept_col1, accept_col2 = st.columns(2)
         with accept_col1:
             if st.button("Accept Suggestion", key="accept_suggestion", use_container_width=True):
-                handle_classification(current_isp, current_item, classification)
+                handle_classification(current_isp, current_item, classification, method="Suggestion", 
+                                    rationale=rationale)
         with accept_col2:
             if st.button("Cancel", key="cancel_suggestion", use_container_width=True):
                 st.session_state.current_suggestion = None

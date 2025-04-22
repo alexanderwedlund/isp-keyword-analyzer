@@ -74,7 +74,8 @@ class SessionManager:
             'next_isp_id': st.session_state.next_isp_id,
             'analyzed_keywords': {str(k): list(v) for k, v in st.session_state.analyzed_keywords.items()},
             'language': st.session_state.language,
-            'context_mode': st.session_state.context_mode
+            'context_mode': st.session_state.context_mode,
+            'classification_metadata': st.session_state.classification_metadata
         }
         return self.repository.save_session(session_data)
     
@@ -93,6 +94,7 @@ class SessionManager:
         st.session_state.current_isp_id = session_data.get('current_isp_id')
         st.session_state.next_isp_id = session_data.get('next_isp_id', 1)
         st.session_state.context_mode = session_data.get('context_mode', 'normal')
+        st.session_state.classification_metadata = session_data.get('classification_metadata', {})
         
         # Convert analyzed keywords from list to set
         analyzed_keywords = session_data.get('analyzed_keywords', {})

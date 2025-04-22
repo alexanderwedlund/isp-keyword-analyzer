@@ -39,5 +39,9 @@ def render_export_ui(isps: Dict[int, Dict[str, Any]], language: str) -> None:
         
         # Export button
         st.subheader("Export Results")
-        exporter = ExcelExporter(isps, language)
+        exporter = ExcelExporter(
+            isps=isps, 
+            language=language, 
+            classification_metadata=st.session_state.classification_metadata
+        )
         st.markdown(exporter.get_download_link(), unsafe_allow_html=True)
