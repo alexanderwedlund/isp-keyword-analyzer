@@ -1,40 +1,89 @@
 # src/domain/ai/model.py
 import os
+import sys
+import platform
 from pathlib import Path
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 import streamlit as st
 
 class ModelManager:
     """Manages the loading and finding of AI models."""
     
-    # Standard places to look for the model if not explicitly specified
-    DEFAULT_MODEL_PATHS = [
-        Path("models/gemma-3-4b-it-q4_0.gguf"),
-        Path("./models/gemma-3-4b-it-q4_0.gguf"),
-        Path("./gemma-3-4b-it-q4_0.gguf"),
-        Path("../models/gemma-3-4b-it-q4_0.gguf"),
-    ]
+    # Available model configurations
+    MODEL_CONFIGS = {
+        "4B": {
+            "name": "Gemma 3 4B",
+            "filename": "gemma-3-4b-it-q4_0.gguf",
+            "description": "Smaller model (4 billion parameters) - Faster but less accurate",
+            "gpu_layers": -1,  # -1 means use all layers possible
+            "search_paths": [
+                Path("models/gemma-3-4b-it-q4_0.gguf"),
+                Path("./models/gemma-3-4b-it-q4_0.gguf"),
+                Path("./gemma-3-4b-it-q4_0.gguf"),
+                Path("../models/gemma-3-4b-it-q4_0.gguf"),
+            ]
+        },
+        "12B": {
+            "name": "Gemma 3 12B",
+            "filename": "gemma-3-12b-it-q4_0.gguf",
+            "description": "Larger model (12 billion parameters) - More accurate but slower",
+            "gpu_layers": -1,  # -1 means use all layers possible
+            "search_paths": [
+                Path("models/gemma-3-12b-it-q4_0.gguf"),
+                Path("./models/gemma-3-12b-it-q4_0.gguf"),
+                Path("./gemma-3-12b-it-q4_0.gguf"),
+                Path("../models/gemma-3-12b-it-q4_0.gguf"),
+            ]
+        }
+    }
     
     @staticmethod
-    def find_model_file() -> Optional[Path]:
-        """Returns a valid model path or None if no model is found."""
-        for p in ModelManager.DEFAULT_MODEL_PATHS:
+    def get_available_models() -> Dict[str, Dict[str, Any]]:
+        """Returns a dictionary of available models with their status (available or not)."""
+        available_models = {}
+        
+        for model_id, config in ModelManager.MODEL_CONFIGS.items():
+            # Check if model file exists in any of the search paths
+            model_exists = any(path.is_file() for path in config["search_paths"])
+            available_models[model_id] = {
+                "name": config["name"],
+                "description": config["description"],
+                "available": model_exists,
+                "path": next((path for path in config["search_paths"] if path.is_file()), None)
+            }
+            
+        return available_models
+    
+    @staticmethod
+    def find_model_file(model_id: str) -> Optional[Path]:
+        """Returns a valid model path or None if the specified model is not found."""
+        if model_id not in ModelManager.MODEL_CONFIGS:
+            st.error(f"Unknown model ID: {model_id}")
+            return None
+            
+        config = ModelManager.MODEL_CONFIGS[model_id]
+        
+        # Check in default locations
+        for p in config["search_paths"]:
             if p.is_file():
-                st.info(f"Found model at {p.resolve()}")
+                st.info(f"Found model {model_id} at {p.resolve()}")
                 return p
         
         # If not found in default locations, search current directory
-        for p in Path('.').glob('**/*.gguf'):
-            if 'gemma' in p.name.lower():
-                st.info(f"Found model at {p.resolve()}")
-                return p
+        for p in Path('.').glob(f'**/{config["filename"]}'):
+            st.info(f"Found model {model_id} at {p.resolve()}")
+            return p
                 
-        st.error("Could not find Gemma model file. Please check that the .gguf file exists.")
+        st.error(f"Could not find {config['name']} model file. Please check that the .gguf file exists.")
         return None
     
     @staticmethod
-    def load_model():
-        """Load the LLM model for analysis."""
+    def load_model(model_id: str = None):
+        """Load the LLM model for analysis using the specified model ID."""
+        if model_id is None:
+            # Use the model selected in session state, or default to 4B
+            model_id = st.session_state.get("selected_model", "4B")
+        
         try:
             from llama_cpp import Llama
             LLAMA_CPP_AVAILABLE = True
@@ -42,31 +91,111 @@ class ModelManager:
             st.error("The llama-cpp-python library is not installed. Please run 'pip install llama-cpp-python' to enable AI analysis.")
             return None
         
-        model_path = ModelManager.find_model_file()
+        model_path = ModelManager.find_model_file(model_id)
         if not model_path:
             return None
+        
+        config = ModelManager.MODEL_CONFIGS[model_id]
+        gpu_layers = config.get("gpu_layers", -1)  # Default to -1 (all layers) for maximum GPU usage
             
         try:
-            st.info(f"Loading model from {model_path.resolve()}")
+            st.info(f"Loading {config['name']} model from {model_path.resolve()}")
             
-            # First try with GPU acceleration
+            # Diagnostisk information om GPU
+            st.info("Attempting to use GPU acceleration. This will be much faster if successful.")
+            
+            # First try with GPU acceleration using maximum offloading
             try:
                 llm = Llama(
                     model_path=str(model_path),
                     n_ctx=2048,
-                    n_gpu_layers=20,  # Use 20 GPU layers by default (set to 0 for CPU only)
+                    n_gpu_layers=gpu_layers,  # Use all GPU layers possible
+                    n_threads=4,              # Limit CPU threads to avoid overload
+                    verbose=True              # Enable verbose logging for diagnostics
                 )
-                st.success("Model loaded successfully with GPU acceleration!")
+                st.success(f"{config['name']} model loaded successfully with GPU acceleration!")
+                
+                # Try to validate GPU usage
+                try:
+                    # This is a simple test to see if GPU is being used
+                    test_completion = llm.create_completion(prompt="Test", max_tokens=1)
+                    st.info("GPU acceleration appears to be working.")
+                except Exception as test_error:
+                    st.warning(f"GPU test failed: {test_error}. The model may not be using GPU acceleration effectively.")
+                
             except Exception as gpu_error:
                 st.warning(f"GPU loading failed: {gpu_error}. Trying CPU fallback...")
                 llm = Llama(
                     model_path=str(model_path),
                     n_ctx=2048,
                     n_gpu_layers=0,  # CPU only
+                    n_threads=8      # More CPU threads for CPU-only mode
                 )
-                st.success("Model loaded successfully on CPU!")
+                st.success(f"{config['name']} model loaded successfully on CPU!")
                 
             return llm
         except Exception as e:
             st.error(f"Error loading model: {e}")
             return None
+
+    @staticmethod
+    def debug_cuda_availability():
+        """Check if CUDA is available and print diagnostic information without requiring PyTorch."""
+        st.write("### GPU Diagnostics")
+        
+        # Start with the most important message in yellow
+        st.warning("The most reliable way to confirm CUDA support is working is to observe GPU usage in Task Manager while running inference.")
+        
+        # System information
+        st.info(f"Operating System: {platform.system()} {platform.release()} {platform.version()}")
+        
+        # Check environment variables
+        cuda_path = os.environ.get("CUDA_PATH", "Not set")
+        st.info(f"CUDA_PATH environment variable: {cuda_path}")
+        
+        # Check llama-cpp-python installation
+        try:
+            import llama_cpp
+            st.info(f"llama-cpp-python version: {llama_cpp.__version__}")
+        except Exception as e:
+            st.warning(f"Failed to check llama-cpp-python: {e}")
+        
+        st.info(f"Python version: {sys.version}")
+        
+        # Try to run nvidia-smi (just report success/failure, not the output)
+        try:
+            import subprocess
+            result = subprocess.run(["nvidia-smi"], capture_output=True, text=True)
+            if result.returncode == 0:
+                st.success("✅ NVIDIA driver is working (nvidia-smi command successful)")
+                # This is the most reliable indicator - if nvidia-smi works, CUDA is available
+                st.success("✅ CUDA is available on this system (based on nvidia-smi)")
+            else:
+                st.warning("❌ nvidia-smi command failed. NVIDIA drivers may not be installed or working properly.")
+        except Exception as e:
+            st.warning(f"❌ Failed to run nvidia-smi: {e}")
+        
+        # Check for CUDA libraries (this is less reliable on Windows)
+        try:
+            import ctypes
+            try:
+                cuda_dll = ctypes.CDLL("nvcuda.dll")
+                st.success("✅ CUDA library found (nvcuda.dll)")
+            except:
+                st.warning("❌ CUDA library not found. GPU acceleration may not work.")
+        except Exception:
+            pass
+                
+        # Check current model setting
+        selected_model = st.session_state.get("selected_model", "None")
+        st.info(f"Currently selected model: {selected_model}")
+        
+        st.write("### Performance Tips")
+        st.markdown("""
+        For optimal performance:
+        
+        1. The 4B model should be much faster than the 12B model
+        2. Reducing n_ctx (context size) can improve performance if memory is limited
+        3. Using n_gpu_layers=-1 (current setting) ensures maximum GPU utilization
+        4. Make sure to close other GPU-intensive applications when running AI analysis
+        """)

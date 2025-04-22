@@ -13,6 +13,7 @@ if src_dir.exists():
 from src.config.settings import KeywordSets
 from src.data.session_store import SQLiteSessionRepository, SessionManager
 from src.ui.app import setup_app_ui
+from src.domain.ai.model import ModelManager
 
 # Set the page configuration
 st.set_page_config(
@@ -69,6 +70,18 @@ def initialize_app():
         st.session_state.all_keywords_analyzed = False
     if 'classification_metadata' not in st.session_state:
         st.session_state.classification_metadata = {}  # Format: {"{isp_id}::{keyword}::{sentence}::{start}::{end}": {"method": "...", "rationale": "..."}}
+    
+    # NEW: Model selection settings
+    if 'selected_model' not in st.session_state:
+        # Check which models are available and default to 4B if available, otherwise 12B
+        available_models = ModelManager.get_available_models()
+        if available_models.get("4B", {}).get("available", False):
+            st.session_state.selected_model = "4B"
+        elif available_models.get("12B", {}).get("available", False):
+            st.session_state.selected_model = "12B"
+        else:
+            st.session_state.selected_model = None  # No models available
+    
     return session_manager
 
 def main():

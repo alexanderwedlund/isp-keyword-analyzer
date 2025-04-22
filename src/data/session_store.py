@@ -75,7 +75,8 @@ class SessionManager:
             'analyzed_keywords': {str(k): list(v) for k, v in st.session_state.analyzed_keywords.items()},
             'language': st.session_state.language,
             'context_mode': st.session_state.context_mode,
-            'classification_metadata': st.session_state.classification_metadata
+            'classification_metadata': st.session_state.classification_metadata,
+            'selected_model': st.session_state.selected_model  # NEW: Save selected model
         }
         return self.repository.save_session(session_data)
     
@@ -101,6 +102,9 @@ class SessionManager:
         st.session_state.analyzed_keywords = {k: set(v) for k, v in analyzed_keywords.items()}
         
         st.session_state.language = session_data.get('language', 'Swedish')
+        
+        # NEW: Restore selected model
+        st.session_state.selected_model = session_data.get('selected_model')
         
         # Reset temporary analysis state
         st.session_state.current_keyword = None

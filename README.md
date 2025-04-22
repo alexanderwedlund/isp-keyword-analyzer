@@ -40,6 +40,33 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 
 3. For AI-assisted classification, a Gemma model placeholder and download link are provided in the `/models` directory. Follow the instructions there to download the model from Kaggle.
 
+### Enabling CUDA Support on Windows
+
+I used the following commands to activate CUDA support for GPU acceleration with llama-cpp-python-0.3.8:
+
+```cmd
+set CMAKE_ARGS=-DGGML_CUDA=on -DGGML_CUDA_FORCE_CUBLAS=on -DLLAVA_BUILD=off -DCMAKE_CUDA_ARCHITECTURES=native
+set FORCE_CMAKE=1
+pip install llama-cpp-python --no-cache-dir --force-reinstall --upgrade
+```
+
+#### What These Commands Do
+
+- `CMAKE_ARGS=-DGGML_CUDA=on`: Enables CUDA support in the underlying GGML library
+- `-DGGML_CUDA_FORCE_CUBLAS=on`: Forces the use of NVIDIA's cuBLAS library for better performance
+- `-DLLAVA_BUILD=off`: Disables building LLaVA components we don't need
+- `-DCMAKE_CUDA_ARCHITECTURES=native`: Optimizes for your specific GPU architecture
+- `FORCE_CMAKE=1`: Forces CMake to rebuild the package
+- `--no-cache-dir --force-reinstall --upgrade`: Ensures a clean installation
+
+#### Requirements
+
+This GPU acceleration has been tested with:
+- Windows 11
+- CUDA Toolkit 12.6
+- NVIDIA RTX 3080 (16GB)
+- Python 3.12
+
 ## Usage
 
 ### Running the Application

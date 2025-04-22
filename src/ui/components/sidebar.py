@@ -5,6 +5,7 @@ from src.config.settings import KeywordSets
 from src.data.file.reader import FileReader
 from src.domain.analyzer import SentenceExtractor
 from src.domain.ai.classifier import BatchClassifier
+from src.domain.ai.model import ModelManager
 from src.ui.utils import show_congratulations
 
 def render_sidebar(on_file_upload: Callable, get_current_isp: Callable, session_manager) -> None:
@@ -59,11 +60,63 @@ def render_sidebar(on_file_upload: Callable, get_current_isp: Callable, session_
         if current_isp:
             render_keyword_selector(current_isp)
             
-            # AI-Assisted Analysis section
+            # AI-Assisted Analysis section (now includes model selection)
             render_ai_analysis_section(current_isp)
     
     # Save/Load Session
     render_session_panel(session_manager, get_current_isp)
+
+
+def render_model_selector():
+    """Render the model selection UI component."""
+    # Get available models
+    available_models = ModelManager.get_available_models()
+    
+    # Check if any models are available
+    if not any(model_info.get("available", False) for model_info in available_models.values()):
+        st.error("No AI models found. Please download at least one model file.")
+        return
+    
+    # Select first available model as default if none selected
+    if st.session_state.get("selected_model") is None:
+        for model_id, info in available_models.items():
+            if info["available"]:
+                st.session_state.selected_model = model_id
+                break
+    
+    # Simplified radio button approach
+    model_options = []
+    for model_id, info in available_models.items():
+        # Only add available models to the options
+        if info["available"]:
+            model_options.append(model_id)
+    
+    if model_options:
+        selected_model = st.radio(
+            "Select model:",
+            model_options,
+            format_func=lambda x: f"{available_models[x]['name']} - {available_models[x]['description']}",
+            index=model_options.index(st.session_state.selected_model) if st.session_state.selected_model in model_options else 0,
+            key="model_selector"
+        )
+        
+        if selected_model != st.session_state.selected_model:
+            st.session_state.selected_model = selected_model
+            # Clear any loaded model or current suggestion
+            if 'current_suggestion' in st.session_state:
+                st.session_state.current_suggestion = None
+            st.rerun()
+    
+    # Show download hint if some models are missing
+    missing_models = [model_id for model_id, info in available_models.items() if not info["available"]]
+    if missing_models:
+        missing_names = [available_models[model_id]['name'] for model_id in missing_models]
+        st.warning(f"Missing model(s): {', '.join(missing_names)}. See download links in the models directory.")
+    
+    # Add GPU diagnostic button
+    if st.button("Check GPU Availability", key="check_gpu_btn"):
+        with st.expander("GPU Diagnostics", expanded=True):
+            ModelManager.debug_cuda_availability()
 
 
 def handle_add_isp(new_isp_name, uploaded_file):
@@ -100,7 +153,7 @@ def handle_add_isp(new_isp_name, uploaded_file):
         st.session_state.next_isp_id += 1
         st.session_state.file_uploaded = False
         st.session_state.uploaded_filename = ""
-        st.rerun()
+        st.rerun()  # Use st.rerun() instead of experimental_rerun
 
 
 def render_isp_selector(get_current_isp):
@@ -129,7 +182,7 @@ def render_isp_selector(get_current_isp):
         st.session_state.current_sentences = []
         st.session_state.current_index = 0
         st.session_state.classifications = []
-        st.rerun()
+        st.rerun()  # Use st.rerun() instead of experimental_rerun
 
 
 def render_keyword_selector(current_isp):
@@ -186,7 +239,7 @@ def render_keyword_selector(current_isp):
             current_isp['analysis_results'][selected_keyword] = {'AA': [], 'OI': []}
             
         if st.button("Start analyzing this keyword"):
-            st.rerun()
+            st.rerun()  # Use st.rerun() instead of experimental_rerun
 
 
 def render_ai_analysis_section(current_isp):
@@ -196,6 +249,14 @@ def render_ai_analysis_section(current_isp):
         
     st.subheader("AI-Assisted Analysis")
     
+    # Render model selection here (now inside the AI section)
+    render_model_selector()
+    
+    # Check if a model is selected before showing AI options
+    if not st.session_state.get("selected_model"):
+        st.error("No AI model is available. Please download at least one model file.")
+        return
+    
     # If any warning is active, show it instead of the buttons
     if st.session_state.show_ai_current_warning:
         st.warning(f"⚠️ WARNING: AI analysis of '{st.session_state.current_keyword}' may produce inaccurate classifications. Please review all results carefully after processing is complete.")
@@ -204,7 +265,7 @@ def render_ai_analysis_section(current_isp):
         with c1:
             if st.button("Cancel", key="cancel_ai_current", use_container_width=True):
                 st.session_state.show_ai_current_warning = False
-                st.rerun()
+                st.rerun()  # Use st.rerun() instead of experimental_rerun
         with c2:
             if st.button("I understand, proceed", key="confirm_ai_current", use_container_width=True):
                 st.session_state.show_ai_current_warning = False
@@ -224,7 +285,7 @@ def render_ai_analysis_section(current_isp):
                     show_congratulations()
                 
                 st.success(f"AI analysis of '{keyword_to_analyze}' complete! Please review the results.")
-                st.rerun()
+                st.rerun()  # Use st.rerun() instead of experimental_rerun
                 
     elif st.session_state.show_ai_warning:
         st.warning("⚠️ WARNING: Bulk AI analysis may produce inaccurate classifications. Please review all results carefully after processing is complete.")
@@ -233,7 +294,7 @@ def render_ai_analysis_section(current_isp):
         with c1:
             if st.button("Cancel", key="cancel_ai_all", use_container_width=True):
                 st.session_state.show_ai_warning = False
-                st.rerun()
+                st.rerun()  # Use st.rerun() instead of experimental_rerun
         with c2:
             if st.button("I understand, proceed", key="confirm_ai_all", use_container_width=True):
                 st.session_state.show_ai_warning = False
@@ -260,7 +321,7 @@ def render_ai_analysis_section(current_isp):
                     show_congratulations()
                     
                 st.success("AI analysis complete! Please review the results.")
-                st.rerun()
+                st.rerun()  # Use st.rerun() instead of experimental_rerun
                 
     else:
         # Show the regular buttons if no warnings are active
@@ -268,12 +329,12 @@ def render_ai_analysis_section(current_isp):
         with ai_col1:
             if st.button("Analyze Current Keyword with AI", key="ai_current_button", use_container_width=True):
                 st.session_state.show_ai_current_warning = True
-                st.rerun()
+                st.rerun()  # Use st.rerun() instead of experimental_rerun
         
         with ai_col2:
             if st.button("Analyze All Keywords with AI", key="ai_all_button", use_container_width=True):
                 st.session_state.show_ai_warning = True
-                st.rerun()
+                st.rerun()  # Use st.rerun() instead of experimental_rerun
 
 
 def handle_ai_analysis_for_keyword(current_isp, keyword):
@@ -484,7 +545,7 @@ def render_session_panel(session_manager, get_current_isp):
                     if current_isp:
                         st.info(f"Selected ISP: {current_isp.get('name', f'ISP {st.session_state.current_isp_id}')}")
                     if st.button("Start Analysis", key="continue_btn"):
-                        st.rerun()
+                        st.rerun()  # Use st.rerun() instead of experimental_rerun
         else:
             st.info("No saved sessions found.")
         
@@ -502,7 +563,7 @@ def render_session_panel(session_manager, get_current_isp):
             st.session_state.current_index = 0
             st.session_state.classifications = []
             st.session_state.analyzed_keywords = {}
-            st.rerun()
+            st.rerun()  # Use st.rerun() instead of experimental_rerun
         
         st.markdown("""
         <style>

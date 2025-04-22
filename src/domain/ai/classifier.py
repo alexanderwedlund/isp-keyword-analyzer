@@ -1,4 +1,4 @@
-# src/domain/ai/classifier.py
+# src/domain/ai/classifier.py - Optimerad version
 from typing import Dict, List, Any, Optional, Callable
 import streamlit as st
 from src.domain.ai.model import ModelManager
@@ -15,10 +15,10 @@ class SentenceClassifier:
             self.model = ModelManager.load_model()
         return self.model is not None
     
-    def classify_sentence(self, sentence_data: Dict[str, Any], keyword: str) -> str:
-        """Classify a sentence as 'AA' or 'OI'."""
+    def get_classification_with_rationale(self, sentence_data: Dict[str, Any], keyword: str) -> Dict[str, str]:
+        """Get classification with rationale for a sentence in a single model call."""
         if not self.ensure_model_loaded():
-            return self._rule_based_classification(sentence_data, keyword)["classification"]
+            return self._rule_based_classification(sentence_data, keyword)
         
         # Extract sentence and context
         sentence = sentence_data['sentence']
@@ -38,55 +38,62 @@ class SentenceClassifier:
             sentence[end_pos:]
         )
         
-        # Create the prompt in chat format
+        # Create a prompt that asks for both classification and rationale in one call
         prompt = f"""Classification task for Information Security Policy (ISP) analysis:
 
-    Please classify the following sentence as either:
-    - 'AA' (Actionable Advice): Sentences that contain sufficient information to act upon without any ambiguity.
-    - 'OI' (Other Information): Sentences that are ambiguous, too abstract, or lack specific instructions.
+Please classify the following sentence as either:
+- 'AA' (Actionable Advice): Sentences that contain sufficient information to act upon without any ambiguity.
+- 'OI' (Other Information): Sentences that are ambiguous, too abstract, or lack specific instructions.
 
-    IMPORTANT: Focus specifically on classifying the sentence containing the HIGHLIGHTED KEYWORD in [square brackets]. This is the target sentence you need to classify.
+IMPORTANT: Focus specifically on classifying the sentence containing the HIGHLIGHTED KEYWORD in [square brackets]. This is the target sentence you need to classify.
 
-    Thoroughly analyze the FULL CONTEXT before making your classification. Context often provides critical clues about whether a statement should be classified as AA or OI.
+Thoroughly analyze the FULL CONTEXT before making your classification. Context often provides critical clues about whether a statement should be classified as AA or OI.
 
-    Evaluation Criteria:
-    1. Actionability: Can an employee take concrete, specific actions based solely on this information? AA requires clear, implementable steps.
-    2. Clarity: Is the information presented without ambiguity? AA statements should have precise requirements with minimal room for interpretation.
-    3. Contextual relevance: Does the surrounding context modify how the statement should be interpreted? A seemingly vague statement may become actionable when considered with its context.
+Evaluation Criteria:
+1. Actionability: Can an employee take concrete, specific actions based solely on this information? AA requires clear, implementable steps.
+2. Clarity: Is the information presented without ambiguity? AA statements should have precise requirements with minimal room for interpretation.
+3. Contextual relevance: Does the surrounding context modify how the statement should be interpreted? A seemingly vague statement may become actionable when considered with its context.
 
-    Guidelines:
-    - Actionable Advice (AA): Specific, unambiguous instructions that employees can directly implement without interpretation. 
-    Examples: "Passwords must not be given over the phone", "Read e-mail that does not need to be saved should be deleted"
+Guidelines:
+- Actionable Advice (AA): Specific, unambiguous instructions that employees can directly implement without interpretation. 
+Examples: "Passwords must not be given over the phone", "Read e-mail that does not need to be saved should be deleted"
 
-    - Other Information (OI): This includes:
-    1. Ambiguous instructions (e.g., "orders must be submitted to IT in good time" - "good time" is subjective)
-    2. Vague guidance (e.g., "all staff must exercise caution when using e-mail" - doesn't specify how)
-    3. Abstract statements that indicate general direction but aren't directly actionable
-    4. Strategic statements despite containing relevant keywords
+- Other Information (OI): This includes:
+1. Ambiguous instructions (e.g., "orders must be submitted to IT in good time" - "good time" is subjective)
+2. Vague guidance (e.g., "all staff must exercise caution when using e-mail" - doesn't specify how)
+3. Abstract statements that indicate general direction but aren't directly actionable
+4. Strategic statements despite containing relevant keywords
 
-    Keyword being analyzed: {keyword}
+Keyword being analyzed: {keyword}
 
-    FULL CONTEXT ANALYSIS:
-    Previous sentences: 
-    {extended_before}
+FULL CONTEXT ANALYSIS:
+Previous sentences: 
+{extended_before}
 
-    Immediate previous context: 
-    {before_context}
+Immediate previous context: 
+{before_context}
 
-    TARGET SENTENCE TO CLASSIFY: "{highlighted_sentence}"
+TARGET SENTENCE TO CLASSIFY: "{highlighted_sentence}"
 
-    Immediate following context: 
-    {after_context}
+Immediate following context: 
+{after_context}
 
-    Following sentences:
-    {extended_after}
+Following sentences:
+{extended_after}
 
-    Classification Process:
-    1. First, examine the complete context carefully
-    2. Apply the evaluation criteria (actionability, clarity, contextual relevance)
-    3. Determine if the TARGET SENTENCE provides clear, actionable guidance when considered in its full context
+Classification Process:
+1. First, examine the complete context carefully
+2. Apply the evaluation criteria (actionability, clarity, contextual relevance)
+3. Determine if the TARGET SENTENCE provides clear, actionable guidance when considered in its full context
 
-    Provide ONLY "AA" or "OI" as your response:"""
+YOUR RESPONSE FORMAT:
+1. First line: Classification (AA or OI)
+2. Explanation: 3-5 sentences explaining your classification in {st.session_state.language} language.
+
+Example response (english language example - your response is in {st.session_state.language}):
+AA
+This sentence provides clear, specific instructions that can be directly implemented. The keyword [Must] appears in a context that requires definite action. The statement is unambiguous about what employees should do.
+"""
         
         try:
             # Using chat completion format
@@ -94,85 +101,46 @@ class SentenceClassifier:
                 messages=[
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=10,
+                max_tokens=300,
                 temperature=0.1,
             )
             
             # Extract response from chat completion format
             response_text = response["choices"][0]["message"]["content"].strip()
-            st.text(f"Raw response: {response_text}")
             
-            # Extract just AA or OI from the response
-            if "AA" in response_text.upper():
-                return "AA"
+            # Parse response to extract classification and rationale
+            lines = response_text.split('\n', 1)
+            if len(lines) >= 2:
+                classification = lines[0].strip().upper()
+                rationale = lines[1].strip()
+                
+                # Validate classification
+                if "AA" in classification:
+                    classification = "AA"
+                else:
+                    classification = "OI"
+                
+                return {
+                    "classification": classification,
+                    "rationale": rationale
+                }
             else:
-                return "OI"
+                # Fallback if response format is unexpected
+                if "AA" in response_text.upper():
+                    return {"classification": "AA", "rationale": "Based on AI analysis."}
+                else:
+                    return {"classification": "OI", "rationale": "Based on AI analysis."}
+                
         except Exception as e:
             st.error(f"Error in model inference: {e}")
-            return self._rule_based_classification(sentence_data, keyword)["classification"]
+            return self._rule_based_classification(sentence_data, keyword)
     
-    def get_classification_with_rationale(self, sentence_data: Dict[str, Any], keyword: str) -> Dict[str, str]:
-        """Get classification with rationale for a sentence."""
-        if not self.ensure_model_loaded():
-            # Use rule-based approach as fallback
-            return self._rule_based_classification(sentence_data, keyword)
-        
-        # First get the classification
-        classification = self.classify_sentence(sentence_data, keyword)
-        
-        # Generate a rationale based on the classification
-        sentence = sentence_data['sentence']
-        context_before = sentence_data.get('before_context', '')
-        context_after = sentence_data.get('after_context', '')
-        
-        # Create highlighted version of the sentence with keyword in brackets
-        start_pos = sentence_data['start']
-        end_pos = sentence_data['end']
-        match_text = sentence_data['match_text']
-        
-        highlighted_sentence = (
-            sentence[:start_pos] + 
-            "[" + match_text + "]" + 
-            sentence[end_pos:]
-        )
-        
-        # Create a prompt to get the rationale
-        rationale_prompt = f"""Classification explanation task:
-
-    You previously classified this sentence as '{classification}' in an Information Security Policy.
-    Please explain WHY you classified it this way in 3-5 sentences. Focus on:
-    1. The specific language that makes it actionable or not
-    2. The clarity/ambiguity of instructions
-    3. How the context affects interpretation
-
-    Keyword being analyzed: {keyword}
-
-    Context before: {context_before}
-    TARGET SENTENCE: "{highlighted_sentence}"
-    Context after: {context_after}
-
-    IMPORTANT: Provide your explanation in {st.session_state.language} language. Write 3-5 sentences in {st.session_state.language}:
-    """
-        
-        try:
-            # Get the rationale explanation
-            response = self.model.create_chat_completion(
-                messages=[
-                    {"role": "user", "content": rationale_prompt}
-                ],
-                max_tokens=200,
-                temperature=0.2,
-            )
-            
-            rationale = response["choices"][0]["message"]["content"].strip()
-            
-            return {
-                "classification": classification,
-                "rationale": rationale
-            }
-        except Exception as e:
-            st.warning(f"AI analysis error: {e}. Using rule-based classification instead.")
-            return self._rule_based_classification(sentence_data, keyword)
+    def classify_sentence(self, sentence_data: Dict[str, Any], keyword: str) -> str:
+        """Classify a sentence as 'AA' or 'OI'."""
+        # Now just extract the classification from the combined method 
+        # for backwards compatibility
+        result = self.get_classification_with_rationale(sentence_data, keyword)
+        return result["classification"]
     
     def _rule_based_classification(self, sentence_data: Dict[str, Any], keyword: str) -> Dict[str, str]:
         """Rule-based fallback classification method."""
