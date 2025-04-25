@@ -50,9 +50,9 @@ IMPORTANT: Focus specifically on classifying the sentence containing the HIGHLIG
 Thoroughly analyze the FULL CONTEXT before making your classification. Context often provides critical clues about whether a statement should be classified as AA or OI.
 
 Evaluation Criteria:
-1. Actionability: Can an employee take concrete, specific actions based solely on this information? AA requires clear, implementable steps.
-2. Clarity: Is the information presented without ambiguity? AA statements should have precise requirements with minimal room for interpretation.
-3. Contextual relevance: Does the surrounding context modify how the statement should be interpreted? A seemingly vague statement may become actionable when considered with its context.
+1. Actionability: Can an employee take concrete, specific actions based solely on this information? AA requires clear direction on what to do or not do.
+2. Clarity: Is the instruction clear enough to be followed without significant interpretation? (Note: Not every detail needs to be spelled out as long as the required action is clear)
+3. Contextual relevance: Does the surrounding context modify how the statement should be interpreted?
 
 Guidelines:
 - Actionable Advice (AA): Specific, unambiguous instructions that employees can directly implement without interpretation. 
@@ -63,6 +63,15 @@ Examples: "Passwords must not be given over the phone", "Read e-mail that does n
 2. Vague guidance (e.g., "all staff must exercise caution when using e-mail" - doesn't specify how)
 3. Abstract statements that indicate general direction but aren't directly actionable
 4. Strategic statements despite containing relevant keywords
+
+IMPORTANT DISTINCTION EXAMPLE:
+- "Do [not] leave sensitive documents visible on your desk when leaving it unattended" should be classified as AA.
+  Why? Even though it doesn't specify exactly what constitutes "sensitive documents" or what alternative action to take, it provides a clear, actionable instruction (don't leave documents visible). Employees can immediately understand and follow this directive.
+
+- "Orders must be submitted to IT in good time" should be classified as OI.
+  Why? The phrase "good time" is too vague to be actionable. Employees cannot determine when exactly to submit orders, making the instruction unimplementable without further clarification.
+
+The key distinction is whether an employee can take a specific action based on the instruction, even if some details are left to reasonable interpretation.
 
 Keyword being analyzed: {keyword}
 
@@ -81,14 +90,9 @@ Immediate following context:
 Following sentences:
 {extended_after}
 
-Classification Process:
-1. First, examine the complete context carefully
-2. Apply the evaluation criteria (actionability, clarity, contextual relevance)
-3. Determine if the TARGET SENTENCE provides clear, actionable guidance when considered in its full context
-
 YOUR RESPONSE FORMAT:
-1. First line: Classification (AA or OI)
-2. Explanation: 3-5 sentences explaining your classification in {st.session_state.language} language.
+First line: Classification (AA or OI)
+Following lines: 3-5 sentences explaining your classification in {st.session_state.language} language.
 
 Example response (english language example - your response is in {st.session_state.language}):
 AA
