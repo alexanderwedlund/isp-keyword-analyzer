@@ -2,7 +2,7 @@
 
 ## Overview
 
-ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Alexander Wedlund and Solan Shekany at Örebro University (2025).
+ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Alexander Wedlund and Solan Shekany at Örebro University (2025). The project was developed using a combination of manual programming and AI assistance, leveraging both Claude Sonnet 3.7 and ChatGPT o3-mini-high to enhance development efficiency and code quality.
 
 ## Features
 
