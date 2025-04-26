@@ -18,6 +18,30 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 - Context viewing functionality that displays surrounding sentences when analyzing keywords to improve classification accuracy
 - AI-assisted classification of sentences for faster analysis
 
+## Project Structure
+
+```
+/
+├── app.py                  # Main application entry point
+├── requirements.txt        # Project dependencies
+├── models/                 # Contains AI model files (placeholders and download links)
+├── src/                    # Source code
+│   ├── config/             # Configuration settings and keyword definitions
+│   ├── data/               # Data handling (file reading, sessions, exports)
+│   │   ├── file/           # PDF and text file processing
+│   │   ├── exporters/      # Excel export functionality
+│   │   └── session_store.py # Session management
+│   ├── domain/             # Domain logic
+│   │   ├── analyzer.py     # Sentence extraction logic
+│   │   ├── metrics.py      # Analysis metrics calculation
+│   │   └── ai/             # AI classification functionality
+│   └── ui/                 # User interface components
+│       ├── app.py          # Main UI setup
+│       ├── components/     # Reusable UI elements (sidebar, tables)
+│       └── pages/          # Page-specific UI (analysis, upload, export)
+└── test_data/              # Contains test data and sample ISP documents
+```
+
 ## Installation
 
 ### Prerequisites
@@ -139,5 +163,6 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 ## Known Issues
 
 - **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word.
-- AI classifications may sometimes be incorrect, especially for complex sentences or ambiguous contexts
-- GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be slow
+- **AI Classification Accuracy**: AI classifications may sometimes be incorrect, especially for complex sentences or ambiguous contexts. All AI-generated classifications should be reviewed by a human for accuracy.
+- **GPU Support Configuration**: GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be significantly slower, especially for the 12B model.
+- **AI Interface Aesthetics**: The AI analysis interface currently displays excessive logs and diagnostic information, creating a cluttered appearance during model loading and inference operations.
