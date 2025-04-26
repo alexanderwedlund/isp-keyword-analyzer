@@ -1,4 +1,3 @@
-# src/ui/pages/__init__.py
 """
 Page components for the ISP Keyword Analyzer.
 """

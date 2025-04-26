@@ -1,4 +1,3 @@
-# src/data/file/text.py
 import streamlit as st
 from typing import BinaryIO
 from src.data.file.reader import FileReader

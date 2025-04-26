@@ -1,4 +1,3 @@
-# src/domain/analyzer.py
 import re
 from typing import List, Dict, Set, Tuple, Optional
 
@@ -14,7 +13,6 @@ class SentenceExtractor:
     @staticmethod
     def find_sentences_with_keyword(text: str, keyword: str) -> List[Dict]:
         """Find sentences that contain the specified keyword including context."""
-        # Split text into sentences
         sentences = SentenceExtractor.extract_sentences(text)
         matching_sentences = []
         pattern = r'\b' + re.escape(keyword) + r'\b'
@@ -22,22 +20,18 @@ class SentenceExtractor:
         for i, sentence in enumerate(sentences):
             matches = list(re.finditer(pattern, sentence, re.IGNORECASE))
 
-            # Get immediate context (1 sentence before/after)
             before_context = sentences[i-1] if i > 0 else ""
             after_context = sentences[i+1] if i < len(sentences)-1 else ""
 
-            # Get extended context (up to 5 sentences before/after)
             extended_before_context = []
             extended_after_context = []
 
-            # Get up to 5 sentences before
             for j in range(i-5, i):
-                if j >= 0 and j != i-1:  # Skip the immediate context which is already stored separately
+                if j >= 0 and j != i-1:
                     extended_before_context.append(sentences[j])
                 
-            # Get up to 5 sentences after
             for j in range(i+2, i+7):
-                if j < len(sentences):  # Skip the immediate context which is already stored separately
+                if j < len(sentences):
                     extended_after_context.append(sentences[j])
 
             if matches:

@@ -1,4 +1,3 @@
-# src/ui/components/sidebar.py
 import streamlit as st
 from typing import Dict, List, Callable, Any, Optional
 from src.config.settings import KeywordSets
@@ -12,7 +11,6 @@ def render_sidebar(on_file_upload: Callable, get_current_isp: Callable, session_
     """Render the sidebar UI."""
     st.header("Settings")
     
-    # Language selection
     st.subheader("Language")
     language_options = KeywordSets.get_available_languages()
     
@@ -31,7 +29,6 @@ def render_sidebar(on_file_upload: Callable, get_current_isp: Callable, session_
     else:
         st.info(f"Language: {st.session_state.language} (cannot change after adding ISPs)")
     
-    # ISP Management
     st.subheader("ISP Management")
     
     with st.expander("Add New ISP", expanded=(st.session_state.current_isp_id is None)):
@@ -51,43 +48,34 @@ def render_sidebar(on_file_upload: Callable, get_current_isp: Callable, session_
         if st.button("Add ISP"):
             handle_add_isp(new_isp_name, uploaded_file)
     
-    # ISP Selection
     if st.session_state.isps:
         render_isp_selector(get_current_isp)
         
-        # Keyword selection
         current_isp = get_current_isp()
         if current_isp:
             render_keyword_selector(current_isp)
             
-            # AI-Assisted Analysis section (now includes model selection)
             render_ai_analysis_section(current_isp)
     
-    # Save/Load Session
     render_session_panel(session_manager, get_current_isp)
 
 
 def render_model_selector():
     """Render the model selection UI component."""
-    # Get available models
     available_models = ModelManager.get_available_models()
     
-    # Check if any models are available
     if not any(model_info.get("available", False) for model_info in available_models.values()):
         st.error("No AI models found. Please download at least one model file.")
         return
     
-    # Select first available model as default if none selected
     if st.session_state.get("selected_model") is None:
         for model_id, info in available_models.items():
             if info["available"]:
                 st.session_state.selected_model = model_id
                 break
     
-    # Simplified radio button approach
     model_options = []
     for model_id, info in available_models.items():
-        # Only add available models to the options
         if info["available"]:
             model_options.append(model_id)
     
@@ -102,18 +90,15 @@ def render_model_selector():
         
         if selected_model != st.session_state.selected_model:
             st.session_state.selected_model = selected_model
-            # Clear any loaded model or current suggestion
             if 'current_suggestion' in st.session_state:
                 st.session_state.current_suggestion = None
             st.rerun()
     
-    # Show download hint if some models are missing
     missing_models = [model_id for model_id, info in available_models.items() if not info["available"]]
     if missing_models:
         missing_names = [available_models[model_id]['name'] for model_id in missing_models]
         st.warning(f"Missing model(s): {', '.join(missing_names)}. See download links in the models directory.")
     
-    # Add GPU diagnostic button
     if st.button("Check GPU Availability", key="check_gpu_btn"):
         with st.expander("GPU Diagnostics", expanded=True):
             ModelManager.debug_cuda_availability()
@@ -133,7 +118,6 @@ def handle_add_isp(new_isp_name, uploaded_file):
         st.error(f"An ISP with the name '{new_isp_name}' already exists. Please choose a different name.")
         return
 
-    # Extract text based on file type
     reader = FileReader.get_reader_for_type(uploaded_file.type)
     isp_text = reader.extract_text(uploaded_file)
     
@@ -153,7 +137,7 @@ def handle_add_isp(new_isp_name, uploaded_file):
         st.session_state.next_isp_id += 1
         st.session_state.file_uploaded = False
         st.session_state.uploaded_filename = ""
-        st.rerun()  # Use st.rerun() instead of experimental_rerun
+        st.rerun()
 
 
 def render_isp_selector(get_current_isp):
@@ -182,40 +166,33 @@ def render_isp_selector(get_current_isp):
         st.session_state.current_sentences = []
         st.session_state.current_index = 0
         st.session_state.classifications = []
-        st.rerun()  # Use st.rerun() instead of experimental_rerun
+        st.rerun()
 
 
 def render_keyword_selector(current_isp):
     """Render keyword selection component."""
     st.subheader("Select Keyword")
     
-    # Set up keyword tracking if not already in session state
     if st.session_state.current_isp_id not in st.session_state.analyzed_keywords:
         st.session_state.analyzed_keywords[st.session_state.current_isp_id] = set()
     
-    # Get all keywords and which ones have been analyzed
     keywords = KeywordSets.get_keywords(st.session_state.language)
     analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
     
-    # Show progress
     analyzed = len(analyzed_for_isp)
     total = len(keywords)
     st.progress(analyzed / total if total > 0 else 0)
     st.write(f"Analyzed: {analyzed}/{total} keywords")
     
-    # Check if all keywords are analyzed
     if analyzed == total:
         st.success("All keywords analyzed! 🎉")
     
-    # Prepare keyword selection dropdown
     remaining_keywords = [k for k in keywords.keys() if k not in analyzed_for_isp]
     default_selected = remaining_keywords[0] if remaining_keywords else list(keywords.keys())[0]
     
-    # If we don't have a current keyword, set to default
     if st.session_state.current_keyword is None:
         st.session_state.current_keyword = default_selected
     
-    # Keyword selection dropdown
     selected_keyword = st.selectbox(
         "Select keyword to analyze",
         list(keywords.keys()),
@@ -239,7 +216,7 @@ def render_keyword_selector(current_isp):
             current_isp['analysis_results'][selected_keyword] = {'AA': [], 'OI': []}
             
         if st.button("Start analyzing this keyword"):
-            st.rerun()  # Use st.rerun() instead of experimental_rerun
+            st.rerun()
 
 
 def render_ai_analysis_section(current_isp):
@@ -249,15 +226,12 @@ def render_ai_analysis_section(current_isp):
         
     st.subheader("AI-Assisted Analysis")
     
-    # Render model selection here (now inside the AI section)
     render_model_selector()
     
-    # Check if a model is selected before showing AI options
     if not st.session_state.get("selected_model"):
         st.error("No AI model is available. Please download at least one model file.")
         return
     
-    # If any warning is active, show it instead of the buttons
     if st.session_state.show_ai_current_warning:
         st.warning(f"⚠️ WARNING: AI analysis of '{st.session_state.current_keyword}' may produce inaccurate classifications. Please review all results carefully after processing is complete.")
         
@@ -265,27 +239,25 @@ def render_ai_analysis_section(current_isp):
         with c1:
             if st.button("Cancel", key="cancel_ai_current", use_container_width=True):
                 st.session_state.show_ai_current_warning = False
-                st.rerun()  # Use st.rerun() instead of experimental_rerun
+                st.rerun() 
         with c2:
             if st.button("I understand, proceed", key="confirm_ai_current", use_container_width=True):
                 st.session_state.show_ai_current_warning = False
                 st.session_state.ai_analysis_in_progress = True
                 
-                # Store the current keyword before analysis
                 keyword_to_analyze = st.session_state.current_keyword
                 
                 with st.spinner(f"AI analyzing '{keyword_to_analyze}'..."):
                     handle_ai_analysis_for_keyword(current_isp, keyword_to_analyze)
                 st.session_state.ai_analysis_in_progress = False
                 
-                # Check if all keywords are analyzed
                 all_keywords = list(KeywordSets.get_keywords(st.session_state.language).keys())
                 analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
                 if len(analyzed_for_isp) == len(all_keywords):
                     show_congratulations()
                 
                 st.success(f"AI analysis of '{keyword_to_analyze}' complete! Please review the results.")
-                st.rerun()  # Use st.rerun() instead of experimental_rerun
+                st.rerun()
                 
     elif st.session_state.show_ai_warning:
         st.warning("⚠️ WARNING: Bulk AI analysis may produce inaccurate classifications. Please review all results carefully after processing is complete.")
@@ -294,7 +266,7 @@ def render_ai_analysis_section(current_isp):
         with c1:
             if st.button("Cancel", key="cancel_ai_all", use_container_width=True):
                 st.session_state.show_ai_warning = False
-                st.rerun()  # Use st.rerun() instead of experimental_rerun
+                st.rerun()
         with c2:
             if st.button("I understand, proceed", key="confirm_ai_all", use_container_width=True):
                 st.session_state.show_ai_warning = False
@@ -304,37 +276,33 @@ def render_ai_analysis_section(current_isp):
                     all_keywords = list(keywords.keys())
                     remaining_keywords = [k for k in all_keywords if k not in st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())]
                     
-                    # If there are remaining keywords, analyze the first one and set it as current
                     if remaining_keywords:
                         first_keyword = remaining_keywords[0]
                         handle_ai_analysis_for_keyword(current_isp, first_keyword)
-                        # The rest can be processed in bulk
                         if len(remaining_keywords) > 1:
                             handle_ai_analysis_for_all_keywords(current_isp, remaining_keywords[1:])
                     
                 st.session_state.ai_analysis_in_progress = False
                 
-                # Show congratulations after bulk analysis
                 all_keywords = list(KeywordSets.get_keywords(st.session_state.language).keys())
                 analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
                 if len(analyzed_for_isp) == len(all_keywords):
                     show_congratulations()
                     
                 st.success("AI analysis complete! Please review the results.")
-                st.rerun()  # Use st.rerun() instead of experimental_rerun
+                st.rerun() 
                 
     else:
-        # Show the regular buttons if no warnings are active
         ai_col1, ai_col2 = st.columns(2)
         with ai_col1:
             if st.button("Analyze Current Keyword with AI", key="ai_current_button", use_container_width=True):
                 st.session_state.show_ai_current_warning = True
-                st.rerun()  # Use st.rerun() instead of experimental_rerun
+                st.rerun()
         
         with ai_col2:
             if st.button("Analyze All Keywords with AI", key="ai_all_button", use_container_width=True):
                 st.session_state.show_ai_warning = True
-                st.rerun()  # Use st.rerun() instead of experimental_rerun
+                st.rerun()
 
 
 def handle_ai_analysis_for_keyword(current_isp, keyword):
@@ -348,20 +316,17 @@ def handle_ai_analysis_for_keyword(current_isp, keyword):
         st.warning(f"No sentences found with keyword '{keyword}'")
         if keyword not in current_isp['analysis_results']:
             current_isp['analysis_results'][keyword] = {'AA': [], 'OI': []}
-        # Mark as analyzed even if no sentences found
         st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(keyword)
         return
     
     st.info(f"Found {len(sentences)} sentences containing keyword '{keyword}'")
     
-    # Setup progress bar
     progress_placeholder = st.empty()
     progress_bar = progress_placeholder.progress(0, text="Initializing...")
     
     def update_progress(progress, text):
         progress_bar.progress(progress, text=text)
     
-    # First, get classifications with rationales
     classification_results = []
     for i, item in enumerate(sentences):
         update_progress(i / len(sentences), f"Analyzing {i+1}/{len(sentences)}")
@@ -369,7 +334,6 @@ def handle_ai_analysis_for_keyword(current_isp, keyword):
         classification_results.append(result)
         update_progress((i + 1) / len(sentences), f"Completed {i+1}/{len(sentences)}")
     
-    # Process results
     if keyword not in current_isp['analysis_results']:
         current_isp['analysis_results'][keyword] = {'AA': [], 'OI': []}
     
@@ -381,7 +345,6 @@ def handle_ai_analysis_for_keyword(current_isp, keyword):
         classification = result['classification']
         rationale = result['rationale']
         
-        # Store metadata for this classification
         metadata_key = f"{st.session_state.current_isp_id}::{keyword}::{occurrence_id}"
         st.session_state.classification_metadata[metadata_key] = {
             "method": "AI",
@@ -401,18 +364,14 @@ def handle_ai_analysis_for_keyword(current_isp, keyword):
             if occurrence_id in current_isp['analysis_results'][keyword]['AA']:
                 current_isp['analysis_results'][keyword]['AA'].remove(occurrence_id)
     
-    # Clear progress bar
     progress_placeholder.empty()
     
-    # Add keyword to analyzed keywords
     st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(keyword)
     
-    # Set the current keyword and prepare the app to show results
     st.session_state.current_keyword = keyword
     st.session_state.current_sentences = sentences
-    st.session_state.current_index = len(sentences)  # Set to end to trigger result display
+    st.session_state.current_index = len(sentences)
     
-    # Show summary
     st.success(f"Analysis complete for '{keyword}':\n"
               f"- Actionable Advice (AA): {aa_count}\n"
               f"- Other Information (OI): {oi_count}")
@@ -431,26 +390,21 @@ def handle_ai_analysis_for_all_keywords(current_isp, keywords):
         progress_text.text(f"Analyzing keyword {i+1}/{total}: '{keyword}'")
         progress_placeholder.progress(i / total)
         
-        # For all keywords except the last one, we just mark them as analyzed
         if i < total - 1:
-            # Process the keyword but don't set it as current
             from src.domain.ai.classifier import BatchClassifier
             
             classifier = BatchClassifier()
             sentences = SentenceExtractor.find_sentences_with_keyword(current_isp.get('text', ''), keyword)
             
             if sentences:
-                # Setup a simple progress indicator
                 inner_progress = st.progress(0)
                 
-                # Classify sentences
                 classifications = []
                 for i, item in enumerate(sentences):
                     result = classifier.classifier.get_classification_with_rationale(item, keyword)
                     classifications.append(result)
                     inner_progress.progress((i + 1) / len(sentences))
                 
-                # Process results
                 if keyword not in current_isp['analysis_results']:
                     current_isp['analysis_results'][keyword] = {'AA': [], 'OI': []}
                 
@@ -459,7 +413,6 @@ def handle_ai_analysis_for_all_keywords(current_isp, keywords):
                     classification = result['classification']
                     rationale = result['rationale']
                     
-                    # Store metadata for this classification
                     metadata_key = f"{st.session_state.current_isp_id}::{keyword}::{occurrence_id}"
                     st.session_state.classification_metadata[metadata_key] = {
                         "method": "AI",
@@ -477,21 +430,16 @@ def handle_ai_analysis_for_all_keywords(current_isp, keywords):
                         if occurrence_id in current_isp['analysis_results'][keyword]['AA']:
                             current_isp['analysis_results'][keyword]['AA'].remove(occurrence_id)
             else:
-                # No sentences found
                 if keyword not in current_isp['analysis_results']:
                     current_isp['analysis_results'][keyword] = {'AA': [], 'OI': []}
             
-            # Mark as analyzed
             st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(keyword)
         else:
-            # For the last keyword, use the standard function to process it
-            # This will set it as the current keyword for display
             handle_ai_analysis_for_keyword(current_isp, keyword)
         
     progress_placeholder.empty()
     progress_text.empty()
     
-    # Check if all keywords have been analyzed and show congratulations
     all_keywords = list(KeywordSets.get_keywords(st.session_state.language).keys())
     analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
     
@@ -519,7 +467,6 @@ def render_session_panel(session_manager, get_current_isp):
         <div class="session-container"></div>
         """, unsafe_allow_html=True)
         
-        # Save Session
         st.text("Save Session")
         if st.button("Save Analysis", key="save_btn", use_container_width=True):
             timestamp = session_manager.save_current_session()
@@ -545,7 +492,7 @@ def render_session_panel(session_manager, get_current_isp):
                     if current_isp:
                         st.info(f"Selected ISP: {current_isp.get('name', f'ISP {st.session_state.current_isp_id}')}")
                     if st.button("Start Analysis", key="continue_btn"):
-                        st.rerun()  # Use st.rerun() instead of experimental_rerun
+                        st.rerun()
         else:
             st.info("No saved sessions found.")
         
@@ -563,7 +510,7 @@ def render_session_panel(session_manager, get_current_isp):
             st.session_state.current_index = 0
             st.session_state.classifications = []
             st.session_state.analyzed_keywords = {}
-            st.rerun()  # Use st.rerun() instead of experimental_rerun
+            st.rerun()
         
         st.markdown("""
         <style>

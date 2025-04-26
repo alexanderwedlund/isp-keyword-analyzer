@@ -1,4 +1,3 @@
-# src/domain/ai/classifier.py - Optimerad version
 from typing import Dict, List, Any, Optional, Callable
 import streamlit as st
 from src.domain.ai.model import ModelManager
@@ -20,14 +19,12 @@ class SentenceClassifier:
         if not self.ensure_model_loaded():
             return self._rule_based_classification(sentence_data, keyword)
         
-        # Extract sentence and context
         sentence = sentence_data['sentence']
         before_context = sentence_data.get('before_context', '')
         after_context = sentence_data.get('after_context', '')
         extended_before = "\n".join(sentence_data.get('extended_before_context', []))
         extended_after = "\n".join(sentence_data.get('extended_after_context', []))
         
-        # Create highlighted version of the sentence with keyword in brackets
         start_pos = sentence_data['start']
         end_pos = sentence_data['end']
         match_text = sentence_data['match_text']
@@ -38,7 +35,6 @@ class SentenceClassifier:
             sentence[end_pos:]
         )
         
-        # Create a prompt that asks for both classification and rationale in one call
         prompt = f"""Classification task for Information Security Policy (ISP) analysis:
 
 Please classify the following sentence as either:
@@ -100,7 +96,6 @@ This sentence provides clear, specific instructions that can be directly impleme
 """
         
         try:
-            # Using chat completion format
             response = self.model.create_chat_completion(
                 messages=[
                     {"role": "user", "content": prompt}
@@ -109,16 +104,13 @@ This sentence provides clear, specific instructions that can be directly impleme
                 temperature=0.1,
             )
             
-            # Extract response from chat completion format
             response_text = response["choices"][0]["message"]["content"].strip()
             
-            # Parse response to extract classification and rationale
             lines = response_text.split('\n', 1)
             if len(lines) >= 2:
                 classification = lines[0].strip().upper()
                 rationale = lines[1].strip()
                 
-                # Validate classification
                 if "AA" in classification:
                     classification = "AA"
                 else:
@@ -129,7 +121,6 @@ This sentence provides clear, specific instructions that can be directly impleme
                     "rationale": rationale
                 }
             else:
-                # Fallback if response format is unexpected
                 if "AA" in response_text.upper():
                     return {"classification": "AA", "rationale": "Based on AI analysis."}
                 else:
@@ -141,16 +132,14 @@ This sentence provides clear, specific instructions that can be directly impleme
     
     def classify_sentence(self, sentence_data: Dict[str, Any], keyword: str) -> str:
         """Classify a sentence as 'AA' or 'OI'."""
-        # Now just extract the classification from the combined method 
-        # for backwards compatibility
         result = self.get_classification_with_rationale(sentence_data, keyword)
         return result["classification"]
     
+    # Fallback
     def _rule_based_classification(self, sentence_data: Dict[str, Any], keyword: str) -> Dict[str, str]:
         """Rule-based fallback classification method."""
         sentence = sentence_data['sentence'].lower()
         
-        # Create highlighted version of the sentence with keyword in brackets
         start_pos = sentence_data['start']
         end_pos = sentence_data['end']
         match_text = sentence_data['match_text']
@@ -161,15 +150,12 @@ This sentence provides clear, specific instructions that can be directly impleme
             sentence[end_pos:]
         )
         
-        # Check for action words
         action_markers = ["must ", "shall ", "required to ", "always ", "never ", 
                         "do not ", "should ", "is prohibited", "is not permitted"]
         
-        # Check for vague terms
         vague_terms = ["good time", "exercise caution", "be careful", "as appropriate",
                     "when necessary", "as needed", "reasonable", "proper"]
         
-        # Check if sentence contains action markers without vague terms
         is_actionable = False
         if any(marker in sentence for marker in action_markers):
             if not any(term in sentence for term in vague_terms):
@@ -177,7 +163,6 @@ This sentence provides clear, specific instructions that can be directly impleme
         
         classification = "AA" if is_actionable else "OI"
         
-        # Generate a simple rationale based on rule-based classification
         if classification == "AA":
             action_words = [marker for marker in action_markers if marker in sentence]
             rationale = f"This sentence contains clear action words ({', '.join(action_words)}) without ambiguous terms, making it specific enough to be actionable. The instruction is clear and provides concrete guidance that can be directly implemented. The highlighted keyword [{match_text}] appears in a context that provides definite direction."
@@ -220,6 +205,7 @@ class BatchClassifier:
                 
         return results
     
+    # Fallback
     def simple_analyze_keyword(self, isp_data: Dict, keyword: str) -> Dict:
         """Simple rule-based classification as fallback when AI is not available."""
         from src.domain.analyzer import SentenceExtractor
@@ -227,7 +213,6 @@ class BatchClassifier:
         if 'analysis_results' not in isp_data:
             isp_data['analysis_results'] = {}
         
-        # Get sentences with the keyword
         sentences = SentenceExtractor.find_sentences_with_keyword(isp_data.get('text', ''), keyword)
         
         if not sentences:
@@ -248,15 +233,12 @@ class BatchClassifier:
             sentence = item['sentence'].lower()
             is_actionable = False
             
-            # Check for action words
             action_markers = ["must ", "shall ", "required to ", "always ", "never ", 
                              "do not ", "should ", "is prohibited", "is not permitted"]
             
-            # Check for vague terms
             vague_terms = ["good time", "exercise caution", "be careful", "as appropriate",
                          "when necessary", "as needed", "reasonable", "proper"]
             
-            # Check if sentence contains action markers without vague terms
             if any(marker in sentence for marker in action_markers):
                 if not any(term in sentence for term in vague_terms):
                     is_actionable = True
@@ -276,7 +258,6 @@ class BatchClassifier:
                 if occurrence_id in isp_data['analysis_results'][keyword]['AA']:
                     isp_data['analysis_results'][keyword]['AA'].remove(occurrence_id)
                     
-            # Update progress
             progress_bar.progress((i + 1) / len(sentences))
         
         st.info(f"Rule-based classification results for '{keyword}':\n"

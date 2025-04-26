@@ -1,4 +1,3 @@
-# src/ui/components/__init__.py
 """
 Reusable UI components for the ISP Keyword Analyzer.
 """

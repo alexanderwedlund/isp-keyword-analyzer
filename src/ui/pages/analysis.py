@@ -1,4 +1,3 @@
-# src/ui/pages/analysis.py
 import streamlit as st
 from typing import Dict, Any, List, Optional
 from src.domain.analyzer import SentenceExtractor
@@ -14,18 +13,15 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
     st.header(f"Analyzing '{st.session_state.current_keyword}' in {current_isp.get('name', f'ISP {st.session_state.current_isp_id}')}")
     total_sentences = len(st.session_state.current_sentences)
     
-    # Progress bar
     st.progress(st.session_state.current_index / total_sentences)
     st.write(f"Sentence {st.session_state.current_index + 1} of {total_sentences}")
     
-    # Display current sentence
     st.markdown("### Current sentence:")
     current_item = st.session_state.current_sentences[st.session_state.current_index]
     current_sentence = current_item['sentence']
     start_pos = current_item['start']
     end_pos = current_item['end']
     
-    # Highlight the keyword in the sentence
     before_match = current_sentence[:start_pos]
     match_text = current_sentence[start_pos:end_pos]
     after_match = current_sentence[end_pos:]
@@ -37,12 +33,10 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
     )
     st.markdown(highlighted_sentence, unsafe_allow_html=True)
     
-    # Count occurrences of the keyword in this sentence
     occurrence_count = sum(1 for i, item in enumerate(st.session_state.current_sentences)
                           if i < st.session_state.current_index and item['sentence'] == current_sentence) + 1
     st.write(f"Occurrence {occurrence_count} of keyword \"{st.session_state.current_keyword}\" in this sentence")
     
-    # Classification buttons
     col1, col2, col3, col4, col5 = st.columns(5)
     
     with col1:
@@ -61,7 +55,7 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
     with col4:
         if st.button("Suggestion", key="suggestion_button", use_container_width=True):
             st.session_state.suggestion_in_progress = True
-            st.session_state.current_suggestion = None  # Clear previous suggestion
+            st.session_state.current_suggestion = None
             st.rerun()
             
     with col5:
@@ -70,24 +64,21 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
                 st.session_state.current_sentences.pop(st.session_state.current_index)
                 if st.session_state.current_index >= len(st.session_state.current_sentences):
                     st.session_state.current_index = max(0, len(st.session_state.current_sentences) - 1)
-                st.session_state.current_suggestion = None  # Clear any suggestion
+                st.session_state.current_suggestion = None 
                 st.session_state.suggestion_in_progress = False
                 st.rerun()
     
-    # Display suggestion if requested
     if st.session_state.suggestion_in_progress:
         render_suggestion_ui(current_isp, current_item, classifier)
     
-    # Show context if requested
     if st.session_state.show_context:
         render_context_ui(current_item)
     
-    # Navigation buttons
     col_back, col_forward = st.columns(2)
     with col_back:
         if st.button("Back", key="back_button", use_container_width=True) and st.session_state.current_index > 0:
             st.session_state.current_index -= 1
-            st.session_state.current_suggestion = None  # Clear any suggestion
+            st.session_state.current_suggestion = None
             st.session_state.suggestion_in_progress = False
             st.rerun()
     with col_forward:
@@ -97,7 +88,7 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
                              occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['OI'])
             if is_classified:
                 st.session_state.current_index += 1
-                st.session_state.current_suggestion = None  # Clear any suggestion
+                st.session_state.current_suggestion = None
                 st.session_state.suggestion_in_progress = False
                 st.rerun()
             else:
@@ -132,7 +123,6 @@ def handle_classification(current_isp: Dict[str, Any], current_item: Dict[str, A
         if occurrence_id in current_isp['analysis_results'][st.session_state.current_keyword]['AA']:
             current_isp['analysis_results'][st.session_state.current_keyword]['AA'].remove(occurrence_id)
     
-    # Store metadata about this classification
     metadata_key = f"{st.session_state.current_isp_id}::{st.session_state.current_keyword}::{occurrence_id}"
     st.session_state.classification_metadata[metadata_key] = {
         "method": method,
@@ -141,15 +131,12 @@ def handle_classification(current_isp: Dict[str, Any], current_item: Dict[str, A
     
     st.session_state.classifications.append((classification, occurrence_id))
     st.session_state.current_index += 1
-    st.session_state.current_suggestion = None  # Clear any suggestion
+    st.session_state.current_suggestion = None
     st.session_state.suggestion_in_progress = False
     
-    # Check if we've reached the end of the sentences
     if st.session_state.current_index >= len(st.session_state.current_sentences):
-        # Mark keyword as analyzed
         st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(st.session_state.current_keyword)
         
-        # Check if all keywords are analyzed
         all_keywords = list(KeywordSets.get_keywords(st.session_state.language).keys())
         analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
         if len(analyzed_for_isp) == len(all_keywords):
@@ -168,17 +155,15 @@ def render_suggestion_ui(current_isp: Dict[str, Any], current_item: Dict[str, An
             )
     
     if st.session_state.current_suggestion:
-        # Create a styled box for the suggestion
         suggestion = st.session_state.current_suggestion
         classification = suggestion["classification"]
         rationale = suggestion["rationale"]
         
-        # Set colors based on classification
         if classification == "AA":
-            box_color = "#1E6823"  # Green for AA
+            box_color = "#1E6823"
             text_color = "white"
         else:
-            box_color = "#A93226"  # Red for OI
+            box_color = "#A93226"
             text_color = "white"
         
         st.markdown(f"""
@@ -188,7 +173,6 @@ def render_suggestion_ui(current_isp: Dict[str, Any], current_item: Dict[str, An
         </div>
         """, unsafe_allow_html=True)
         
-        # Buttons to accept suggestion
         accept_col1, accept_col2 = st.columns(2)
         with accept_col1:
             if st.button("Accept Suggestion", key="accept_suggestion", use_container_width=True):
@@ -216,7 +200,6 @@ def render_context_ui(current_item: Dict[str, Any]) -> None:
     st.markdown("### Sentence Context:")
     
     if st.session_state.context_mode == "normal":
-        # Display normal context (1 sentence before and after)
         st.markdown(
             "<div style='margin:10px 0; padding:10px; border:1px solid #ddd; border-radius:5px;'>"
             f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px;'>"
@@ -228,37 +211,28 @@ def render_context_ui(current_item: Dict[str, Any]) -> None:
             unsafe_allow_html=True
         )
     else:
-        # Display extended context (5 sentences before and after)
         extended_before = current_item.get('extended_before_context', [])
         extended_after = current_item.get('extended_after_context', [])
         
-        # Prepare the HTML for extended context
         context_html = "<div style='margin:10px 0; padding:10px; border:1px solid #ddd; border-radius:5px;'>"
         
-        # Add the extended before context section
         context_html += "<div style='background-color: #333333; color: white; padding: 5px; border-radius: 3px; margin-bottom: 10px;'>"
         context_html += "<strong>Extended Context (Before):</strong></div>"
         
-        # Add each extended before context sentence
         for sentence in extended_before:
             context_html += f"<div style='background-color: #994d00; color: white; padding: 5px; margin-bottom: 5px;'>{sentence}</div>"
         
-        # Add the immediate before context
         context_html += f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px; margin: 10px 0;'>"
         context_html += f"<strong>Previous:</strong> {current_item.get('before_context', '')}</div>"
         
-        # Add the current sentence
         context_html += f"<div style='margin: 10px 0;'><strong>Current:</strong> {current_item['sentence']}</div>"
         
-        # Add the immediate after context
         context_html += f"<div style='background-color: #530003; color: white; padding: 5px; border-radius: 3px; margin: 10px 0;'>"
         context_html += f"<strong>Next:</strong> {current_item.get('after_context', '')}</div>"
         
-        # Add the extended after context section
         context_html += "<div style='background-color: #333333; color: white; padding: 5px; border-radius: 3px; margin-top: 10px;'>"
         context_html += "<strong>Extended Context (After):</strong></div>"
         
-        # Add each extended after context sentence
         for sentence in extended_after:
             context_html += f"<div style='background-color: #994d00; color: white; padding: 5px; margin-top: 5px;'>{sentence}</div>"
         
@@ -272,15 +246,12 @@ def render_analysis_complete_ui(current_isp: Dict[str, Any]) -> None:
     st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(st.session_state.current_keyword)
     st.success(f"All {len(st.session_state.current_sentences)} sentences with '{st.session_state.current_keyword}' have been classified!")
     
-    # Check if all keywords have been analyzed
     all_keywords = list(KeywordSets.get_keywords(st.session_state.language).keys())
     analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
 
     if len(analyzed_for_isp) == len(all_keywords):
-        # All keywords have been analyzed - show celebration
         show_congratulations()
     
-    # Display results summary
     col1, col2 = st.columns(2)
     with col1:
         st.subheader("Actionable Advice (AA)")
@@ -297,14 +268,12 @@ def render_analysis_complete_ui(current_isp: Dict[str, Any]) -> None:
         loss_specificity = (oi_count / total_count) * 100
         st.write(f"### Keyword Loss of Specificity: {loss_specificity:.2f}%")
     
-    # Display classified sentences
     with st.expander("Show all Actionable Advice sentences"):
         render_classified_sentences(current_isp, "AA")
         
     with st.expander("Show all Other Information sentences"):
         render_classified_sentences(current_isp, "OI")
     
-    # Next keyword button
     render_next_keyword_button()
 
 
@@ -345,16 +314,12 @@ def render_next_keyword_button() -> None:
             if next_keyword not in current_isp['analysis_results']:
                 current_isp['analysis_results'][next_keyword] = {'AA': [], 'OI': []}
                 
-            # Check for empty keyword (no sentences)
             if len(st.session_state.current_sentences) == 0:
-                # Automatically mark as analyzed
                 st.session_state.analyzed_keywords.setdefault(st.session_state.current_isp_id, set()).add(next_keyword)
                 
-                # Check if all keywords are now analyzed
                 all_keywords = list(KeywordSets.get_keywords(st.session_state.language).keys())
                 analyzed_for_isp = st.session_state.analyzed_keywords.get(st.session_state.current_isp_id, set())
                 if len(analyzed_for_isp) == len(all_keywords):
-                    # We'll show congratulations in the UI after rerun
                     st.session_state.all_keywords_analyzed = True
                 
             st.rerun()
@@ -373,7 +338,6 @@ def get_next_keyword(current_keyword, all_keywords, analyzed_keywords):
     except ValueError:
         return all_keywords[0] if all_keywords else None
         
-    # Try to find a keyword that hasn't been analyzed yet
     for i in range(current_index + 1, len(all_keywords)):
         if all_keywords[i] not in analyzed_keywords:
             return all_keywords[i]
@@ -382,5 +346,4 @@ def get_next_keyword(current_keyword, all_keywords, analyzed_keywords):
         if all_keywords[i] not in analyzed_keywords:
             return all_keywords[i]
             
-    # If all keywords have been analyzed, just move to the next one
     return all_keywords[(current_index + 1) % len(all_keywords)]

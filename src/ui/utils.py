@@ -1,13 +1,9 @@
-# src/ui/utils.py
-
 import streamlit as st
 
 def show_congratulations():
     """Show a congratulations message and balloons when all keywords are analyzed."""
-    # Show celebration
     st.balloons()
     
-    # Create a clear confirmation with CSS
     st.markdown("""
     <style>
     .completion-alert {

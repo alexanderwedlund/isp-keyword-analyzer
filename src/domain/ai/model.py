@@ -1,4 +1,3 @@
-# src/domain/ai/model.py
 import os
 import sys
 import platform
@@ -9,7 +8,6 @@ import streamlit as st
 class ModelManager:
     """Manages the loading and finding of AI models."""
     
-    # Available model configurations
     MODEL_CONFIGS = {
         "4B": {
             "name": "Gemma 3 4B",
@@ -43,7 +41,6 @@ class ModelManager:
         available_models = {}
         
         for model_id, config in ModelManager.MODEL_CONFIGS.items():
-            # Check if model file exists in any of the search paths
             model_exists = any(path.is_file() for path in config["search_paths"])
             available_models[model_id] = {
                 "name": config["name"],
@@ -63,13 +60,11 @@ class ModelManager:
             
         config = ModelManager.MODEL_CONFIGS[model_id]
         
-        # Check in default locations
         for p in config["search_paths"]:
             if p.is_file():
                 st.info(f"Found model {model_id} at {p.resolve()}")
                 return p
         
-        # If not found in default locations, search current directory
         for p in Path('.').glob(f'**/{config["filename"]}'):
             st.info(f"Found model {model_id} at {p.resolve()}")
             return p
@@ -81,7 +76,6 @@ class ModelManager:
     def load_model(model_id: str = None):
         """Load the LLM model for analysis using the specified model ID."""
         if model_id is None:
-            # Use the model selected in session state, or default to 4B
             model_id = st.session_state.get("selected_model", "4B")
         
         try:
@@ -101,23 +95,19 @@ class ModelManager:
         try:
             st.info(f"Loading {config['name']} model from {model_path.resolve()}")
             
-            # Diagnostisk information om GPU
             st.info("Attempting to use GPU acceleration. This will be much faster if successful.")
             
-            # First try with GPU acceleration using maximum offloading
             try:
                 llm = Llama(
                     model_path=str(model_path),
                     n_ctx=2048,
                     n_gpu_layers=gpu_layers,  # Use all GPU layers possible
                     n_threads=4,              # Limit CPU threads to avoid overload
-                    verbose=True              # Enable verbose logging for diagnostics
+                    verbose=True
                 )
                 st.success(f"{config['name']} model loaded successfully with GPU acceleration!")
                 
-                # Try to validate GPU usage
                 try:
-                    # This is a simple test to see if GPU is being used
                     test_completion = llm.create_completion(prompt="Test", max_tokens=1)
                     st.info("GPU acceleration appears to be working.")
                 except Exception as test_error:
@@ -143,17 +133,13 @@ class ModelManager:
         """Check if CUDA is available and print diagnostic information without requiring PyTorch."""
         st.write("### GPU Diagnostics")
         
-        # Start with the most important message in yellow
         st.warning("The most reliable way to confirm CUDA support is working is to observe GPU usage in Task Manager while running inference.")
         
-        # System information
         st.info(f"Operating System: {platform.system()} {platform.release()} {platform.version()}")
         
-        # Check environment variables
         cuda_path = os.environ.get("CUDA_PATH", "Not set")
         st.info(f"CUDA_PATH environment variable: {cuda_path}")
         
-        # Check llama-cpp-python installation
         try:
             import llama_cpp
             st.info(f"llama-cpp-python version: {llama_cpp.__version__}")
@@ -162,20 +148,17 @@ class ModelManager:
         
         st.info(f"Python version: {sys.version}")
         
-        # Try to run nvidia-smi (just report success/failure, not the output)
         try:
             import subprocess
             result = subprocess.run(["nvidia-smi"], capture_output=True, text=True)
             if result.returncode == 0:
                 st.success("✅ NVIDIA driver is working (nvidia-smi command successful)")
-                # This is the most reliable indicator - if nvidia-smi works, CUDA is available
                 st.success("✅ CUDA is available on this system (based on nvidia-smi)")
             else:
                 st.warning("❌ nvidia-smi command failed. NVIDIA drivers may not be installed or working properly.")
         except Exception as e:
             st.warning(f"❌ Failed to run nvidia-smi: {e}")
         
-        # Check for CUDA libraries (this is less reliable on Windows)
         try:
             import ctypes
             try:
@@ -186,7 +169,6 @@ class ModelManager:
         except Exception:
             pass
                 
-        # Check current model setting
         selected_model = st.session_state.get("selected_model", "None")
         st.info(f"Currently selected model: {selected_model}")
         

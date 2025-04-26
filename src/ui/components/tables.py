@@ -1,4 +1,3 @@
-# src/ui/components/tables.py
 import streamlit as st
 import pandas as pd
 from typing import Dict, List, Any, Callable

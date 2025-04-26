@@ -1,4 +1,3 @@
-# src/data/__init__.py
 """
 Data management module for the ISP Keyword Analyzer.
 """

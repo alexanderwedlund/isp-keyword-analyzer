@@ -1,4 +1,3 @@
-# src/ui/pages/upload.py
 import streamlit as st
 from typing import Dict, Any, Optional
 from src.data.file.reader import FileReader

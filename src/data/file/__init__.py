@@ -1,4 +1,3 @@
-# src/data/file/__init__.py
 """
 File processing module for the ISP Keyword Analyzer.
 """

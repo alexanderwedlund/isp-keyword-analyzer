@@ -1,4 +1,3 @@
-# src/data/session_store.py
 import sqlite3
 import json
 import datetime
@@ -76,7 +75,7 @@ class SessionManager:
             'language': st.session_state.language,
             'context_mode': st.session_state.context_mode,
             'classification_metadata': st.session_state.classification_metadata,
-            'selected_model': st.session_state.selected_model  # NEW: Save selected model
+            'selected_model': st.session_state.selected_model
         }
         return self.repository.save_session(session_data)
     
@@ -90,30 +89,21 @@ class SessionManager:
         if not session_data:
             return False
             
-        # Update session state
         st.session_state.isps = session_data.get('isps', {})
         st.session_state.current_isp_id = session_data.get('current_isp_id')
         st.session_state.next_isp_id = session_data.get('next_isp_id', 1)
         st.session_state.context_mode = session_data.get('context_mode', 'normal')
         st.session_state.classification_metadata = session_data.get('classification_metadata', {})
-        
-        # Convert analyzed keywords from list to set
         analyzed_keywords = session_data.get('analyzed_keywords', {})
         st.session_state.analyzed_keywords = {k: set(v) for k, v in analyzed_keywords.items()}
-        
         st.session_state.language = session_data.get('language', 'Swedish')
-        
-        # NEW: Restore selected model
         st.session_state.selected_model = session_data.get('selected_model')
-        
-        # Reset temporary analysis state
         st.session_state.current_keyword = None
         st.session_state.current_sentences = []
         st.session_state.current_index = 0
         st.session_state.classifications = []
         st.session_state.show_context = False
 
-        # Ensure that ISP IDs are of type integer
         if st.session_state.isps:
             old_isps = st.session_state.isps.copy()
             st.session_state.isps = {}

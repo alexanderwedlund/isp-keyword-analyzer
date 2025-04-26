@@ -1,4 +1,3 @@
-# src/data/file/pdf.py
 import PyPDF2
 import streamlit as st
 from typing import BinaryIO

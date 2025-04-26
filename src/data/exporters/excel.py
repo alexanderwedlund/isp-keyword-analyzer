@@ -1,4 +1,3 @@
-# src/data/exporters/excel.py
 import pandas as pd
 import base64
 import datetime
@@ -28,7 +27,6 @@ class ExcelExporter:
             workbook = writer.book
             title_format = workbook.add_format({'bold': True})
             
-            # Create each worksheet
             self._create_total_loss_worksheet(workbook, title_format)
             self._create_aa_keywords_worksheet(workbook, title_format)
             self._create_oi_keywords_worksheet(workbook, title_format)
@@ -174,7 +172,6 @@ class ExcelExporter:
                         worksheet.write(row, col, '-')
                 row += 1
                 
-        # Calculate keyword-specific sums from Tables 2 and 3
         aa_sums = {kw: sum(metrics['aa_count'].get(kw, 0) for isp_id, metrics in self.all_metrics.items() if metrics)
                   for kw in self.keywords.keys()}
         oi_sums = {kw: sum(metrics['oi_count'].get(kw, 0) for isp_id, metrics in self.all_metrics.items() if metrics)
@@ -210,7 +207,6 @@ class ExcelExporter:
             isp_name = isp_data.get('name', f"ISP {isp_id}")
             
             for keyword, data in analysis_results.items():
-                # Process AA occurrences
                 for occurrence in data.get('AA', []):
                     parts = occurrence.split("::")
                     if len(parts) >= 3:
@@ -219,31 +215,28 @@ class ExcelExporter:
                         end_pos = int(parts[2])
                         keyword_instance = sentence[start_pos:end_pos]
                         
-                        # Create highlighted sentence with brackets
                         highlighted_sentence = (
                             sentence[:start_pos] +
                             '[' + keyword_instance + ']' +
                             sentence[end_pos:]
                         )
                         
-                        # Get classification metadata
                         metadata_key = f"{isp_id}::{keyword}::{occurrence}"
                         metadata = self.classification_metadata.get(metadata_key, {})
-                        method = metadata.get("method", "Manual")  # Default to Manual if not specified
-                        rationale = metadata.get("rationale", "")  # Empty string if no rationale
+                        method = metadata.get("method", "Manual")
+                        rationale = metadata.get("rationale", "")
                         
                         worksheet.write(row, 0, isp_id)
                         worksheet.write(row, 1, isp_name)
                         worksheet.write(row, 2, keyword)
                         worksheet.write(row, 3, 'AA')
-                        worksheet.write(row, 4, highlighted_sentence)  # Use highlighted sentence
+                        worksheet.write(row, 4, highlighted_sentence)
                         worksheet.write(row, 5, keyword_instance)
                         worksheet.write(row, 6, f"{start_pos}-{end_pos}")
                         worksheet.write(row, 7, method)
                         worksheet.write(row, 8, rationale)
                         row += 1
                         
-                # Process OI occurrences
                 for occurrence in data.get('OI', []):
                     parts = occurrence.split("::")
                     if len(parts) >= 3:
@@ -252,24 +245,22 @@ class ExcelExporter:
                         end_pos = int(parts[2])
                         keyword_instance = sentence[start_pos:end_pos]
                         
-                        # Create highlighted sentence with brackets
                         highlighted_sentence = (
                             sentence[:start_pos] +
                             '[' + keyword_instance + ']' +
                             sentence[end_pos:]
                         )
                         
-                        # Get classification metadata
                         metadata_key = f"{isp_id}::{keyword}::{occurrence}"
                         metadata = self.classification_metadata.get(metadata_key, {})
-                        method = metadata.get("method", "Manual")  # Default to Manual if not specified
-                        rationale = metadata.get("rationale", "")  # Empty string if no rationale
+                        method = metadata.get("method", "Manual")
+                        rationale = metadata.get("rationale", "")
                         
                         worksheet.write(row, 0, isp_id)
                         worksheet.write(row, 1, isp_name)
                         worksheet.write(row, 2, keyword)
                         worksheet.write(row, 3, 'OI')
-                        worksheet.write(row, 4, highlighted_sentence)  # Use highlighted sentence
+                        worksheet.write(row, 4, highlighted_sentence)
                         worksheet.write(row, 5, keyword_instance)
                         worksheet.write(row, 6, f"{start_pos}-{end_pos}")
                         worksheet.write(row, 7, method)

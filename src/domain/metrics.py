@@ -1,4 +1,3 @@
-# src/domain/metrics.py
 from typing import Dict, List, Any, Optional
 
 class MetricsCalculator:

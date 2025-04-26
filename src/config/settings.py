@@ -1,10 +1,8 @@
-# src/config/settings.py
 from typing import Dict, Any, Optional
 
 class KeywordSets:
     """Manages the sets of keywords for different languages."""
     
-    # Default keyword sets
     _DEFAULT_SETS = {
         "Swedish": {
             "Aldrig": "Never",

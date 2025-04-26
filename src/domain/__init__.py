@@ -1,4 +1,3 @@
-# src/domain/__init__.py
 """
 Domain logic for the ISP Keyword Analyzer.
 """

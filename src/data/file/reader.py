@@ -1,4 +1,3 @@
-# src/data/file/reader.py
 from abc import ABC, abstractmethod
 from typing import BinaryIO, Optional
 
