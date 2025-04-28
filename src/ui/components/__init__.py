@@ -6,7 +6,8 @@ from src.ui.components.tables import (
     render_total_loss_table,
     render_aa_keywords_table,
     render_oi_keywords_table,
-    render_keyword_loss_table
+    render_keyword_loss_table,
+    render_raw_data_table
 )
 
 __all__ = [
@@ -14,5 +15,6 @@ __all__ = [
     'render_total_loss_table',
     'render_aa_keywords_table',
     'render_oi_keywords_table',
-    'render_keyword_loss_table'
+    'render_keyword_loss_table',
+    'render_raw_data_table'
 ]

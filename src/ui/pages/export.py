@@ -8,7 +8,8 @@ from src.ui.components.tables import (
     render_total_loss_table,
     render_aa_keywords_table,
     render_oi_keywords_table,
-    render_keyword_loss_table
+    render_keyword_loss_table,
+    render_raw_data_table
 )
 
 def render_export_ui(isps: Dict[int, Dict[str, Any]], language: str) -> None:
@@ -31,6 +32,9 @@ def render_export_ui(isps: Dict[int, Dict[str, Any]], language: str) -> None:
         render_aa_keywords_table(all_metrics, create_safe_dataframe)
         render_oi_keywords_table(all_metrics, create_safe_dataframe)
         render_keyword_loss_table(all_metrics, create_safe_dataframe)
+        
+        if st.session_state.current_isp_id is not None:
+            render_raw_data_table(st.session_state.current_isp_id, isps, create_safe_dataframe)
         
         st.subheader("Export Results")
         exporter = ExcelExporter(

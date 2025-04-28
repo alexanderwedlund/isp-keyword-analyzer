@@ -150,3 +150,86 @@ def render_keyword_loss_table(all_metrics, create_safe_dataframe):
         
         df4 = create_safe_dataframe(table4_data)
         st.dataframe(df4, hide_index=True)
+
+def render_raw_data_table(current_isp_id, isps, create_safe_dataframe):
+    """Render a table showing Raw Data for the current ISP."""
+    st.subheader("Raw Data for Current ISP")
+    
+    if current_isp_id not in isps:
+        st.info("No data available for this ISP.")
+        return
+        
+    current_isp = isps[current_isp_id]
+    analysis_results = current_isp.get('analysis_results', {})
+    isp_name = current_isp.get('name', f"ISP {current_isp_id}")
+    
+    if not analysis_results:
+        st.info("No analysis data available for this ISP.")
+        return
+    
+    raw_data = []
+    
+    for keyword, data in analysis_results.items():
+        for occurrence in data.get('AA', []):
+            parts = occurrence.split("::")
+            if len(parts) >= 3:
+                sentence = parts[0]
+                start_pos = int(parts[1])
+                end_pos = int(parts[2])
+                keyword_instance = sentence[start_pos:end_pos]
+                
+                highlighted_sentence = (
+                    sentence[:start_pos] +
+                    '[' + keyword_instance + ']' +
+                    sentence[end_pos:]
+                )
+                
+                metadata_key = f"{current_isp_id}::{keyword}::{occurrence}"
+                metadata = st.session_state.classification_metadata.get(metadata_key, {})
+                method = metadata.get("method", "Manual") 
+                rationale = metadata.get("rationale", "") 
+                
+                raw_data.append({
+                    'Keyword': keyword,
+                    'Classification': 'AA',
+                    'Sentence': highlighted_sentence,
+                    'Keyword Instance': keyword_instance,
+                    'Position': f"{start_pos}-{end_pos}",
+                    'Method': method,
+                    'Rationale': rationale
+                })
+                
+        for occurrence in data.get('OI', []):
+            parts = occurrence.split("::")
+            if len(parts) >= 3:
+                sentence = parts[0]
+                start_pos = int(parts[1])
+                end_pos = int(parts[2])
+                keyword_instance = sentence[start_pos:end_pos]
+                
+                highlighted_sentence = (
+                    sentence[:start_pos] +
+                    '[' + keyword_instance + ']' +
+                    sentence[end_pos:]
+                )
+                
+                metadata_key = f"{current_isp_id}::{keyword}::{occurrence}"
+                metadata = st.session_state.classification_metadata.get(metadata_key, {})
+                method = metadata.get("method", "Manual")
+                rationale = metadata.get("rationale", "")
+                
+                raw_data.append({
+                    'Keyword': keyword,
+                    'Classification': 'OI',
+                    'Sentence': highlighted_sentence,
+                    'Keyword Instance': keyword_instance,
+                    'Position': f"{start_pos}-{end_pos}",
+                    'Method': method,
+                    'Rationale': rationale
+                })
+    
+    if raw_data:
+        df = create_safe_dataframe(raw_data)
+        st.dataframe(df, hide_index=True)
+    else:
+        st.info("No raw data available for this ISP.")

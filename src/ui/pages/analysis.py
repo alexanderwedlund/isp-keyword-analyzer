@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 from typing import Dict, Any, List, Optional
 from src.domain.analyzer import SentenceExtractor
 from src.domain.ai.classifier import SentenceClassifier
@@ -274,7 +275,84 @@ def render_analysis_complete_ui(current_isp: Dict[str, Any]) -> None:
     with st.expander("Show all Other Information sentences"):
         render_classified_sentences(current_isp, "OI")
     
+    with st.expander("Show Raw Data for current keyword", expanded=False):
+        render_current_keyword_raw_data(current_isp)
+    
     render_next_keyword_button()
+
+def render_current_keyword_raw_data(current_isp: Dict[str, Any]) -> None:
+    """Render raw data table only for the current keyword."""
+    if 'analysis_results' not in current_isp or st.session_state.current_keyword not in current_isp['analysis_results']:
+        st.info("No analysis data available.")
+        return
+        
+    data = []
+    keyword = st.session_state.current_keyword
+    isp_id = st.session_state.current_isp_id
+    
+    for occurrence in current_isp['analysis_results'][keyword].get('AA', []):
+        parts = occurrence.split("::")
+        if len(parts) >= 3:
+            sentence = parts[0]
+            start_pos = int(parts[1])
+            end_pos = int(parts[2])
+            keyword_instance = sentence[start_pos:end_pos]
+            
+            highlighted_sentence = (
+                sentence[:start_pos] +
+                '[' + keyword_instance + ']' +
+                sentence[end_pos:]
+            )
+            
+            metadata_key = f"{isp_id}::{keyword}::{occurrence}"
+            metadata = st.session_state.classification_metadata.get(metadata_key, {})
+            method = metadata.get("method", "Manual")
+            rationale = metadata.get("rationale", "")
+            
+            data.append({
+                'Classification': 'AA',
+                'Sentence': highlighted_sentence,
+                'Keyword Instance': keyword_instance,
+                'Method': method,
+                'Rationale': rationale
+            })
+    
+    for occurrence in current_isp['analysis_results'][keyword].get('OI', []):
+        parts = occurrence.split("::")
+        if len(parts) >= 3:
+            sentence = parts[0]
+            start_pos = int(parts[1])
+            end_pos = int(parts[2])
+            keyword_instance = sentence[start_pos:end_pos]
+            
+            highlighted_sentence = (
+                sentence[:start_pos] +
+                '[' + keyword_instance + ']' +
+                sentence[end_pos:]
+            )
+            
+            metadata_key = f"{isp_id}::{keyword}::{occurrence}"
+            metadata = st.session_state.classification_metadata.get(metadata_key, {})
+            method = metadata.get("method", "Manual")
+            rationale = metadata.get("rationale", "")
+            
+            data.append({
+                'Classification': 'OI',
+                'Sentence': highlighted_sentence,
+                'Keyword Instance': keyword_instance,
+                'Method': method,
+                'Rationale': rationale
+            })
+    
+    if data:
+        for row in data:
+            for key in row:
+                row[key] = str(row[key])
+        
+        df = pd.DataFrame(data)
+        st.dataframe(df, hide_index=True)
+    else:
+        st.info("No raw data available for this keyword.")
 
 
 def render_classified_sentences(current_isp: Dict[str, Any], classification: str) -> None:
@@ -347,3 +425,78 @@ def get_next_keyword(current_keyword, all_keywords, analyzed_keywords):
             return all_keywords[i]
             
     return all_keywords[(current_index + 1) % len(all_keywords)]
+
+
+def render_current_keyword_raw_data(current_isp: Dict[str, Any]) -> None:
+    """Render raw data table only for the current keyword."""
+    if 'analysis_results' not in current_isp or st.session_state.current_keyword not in current_isp['analysis_results']:
+        st.info("No analysis data available.")
+        return
+        
+    data = []
+    keyword = st.session_state.current_keyword
+    isp_id = st.session_state.current_isp_id
+    
+    for occurrence in current_isp['analysis_results'][keyword].get('AA', []):
+        parts = occurrence.split("::")
+        if len(parts) >= 3:
+            sentence = parts[0]
+            start_pos = int(parts[1])
+            end_pos = int(parts[2])
+            keyword_instance = sentence[start_pos:end_pos]
+            
+            highlighted_sentence = (
+                sentence[:start_pos] +
+                '[' + keyword_instance + ']' +
+                sentence[end_pos:]
+            )
+            
+            metadata_key = f"{isp_id}::{keyword}::{occurrence}"
+            metadata = st.session_state.classification_metadata.get(metadata_key, {})
+            method = metadata.get("method", "Manual")
+            rationale = metadata.get("rationale", "")
+            
+            data.append({
+                'Classification': 'AA',
+                'Sentence': highlighted_sentence,
+                'Keyword Instance': keyword_instance,
+                'Method': method,
+                'Rationale': rationale
+            })
+    
+    for occurrence in current_isp['analysis_results'][keyword].get('OI', []):
+        parts = occurrence.split("::")
+        if len(parts) >= 3:
+            sentence = parts[0]
+            start_pos = int(parts[1])
+            end_pos = int(parts[2])
+            keyword_instance = sentence[start_pos:end_pos]
+            
+            highlighted_sentence = (
+                sentence[:start_pos] +
+                '[' + keyword_instance + ']' +
+                sentence[end_pos:]
+            )
+            
+            metadata_key = f"{isp_id}::{keyword}::{occurrence}"
+            metadata = st.session_state.classification_metadata.get(metadata_key, {})
+            method = metadata.get("method", "Manual")
+            rationale = metadata.get("rationale", "")
+            
+            data.append({
+                'Classification': 'OI',
+                'Sentence': highlighted_sentence,
+                'Keyword Instance': keyword_instance,
+                'Method': method,
+                'Rationale': rationale
+            })
+    
+    if data:
+        for row in data:
+            for key in row:
+                row[key] = str(row[key])
+        
+        df = pd.DataFrame(data)
+        st.dataframe(df, hide_index=True)
+    else:
+        st.info("No raw data available for this keyword.")
