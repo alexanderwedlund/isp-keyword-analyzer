@@ -122,19 +122,25 @@ def handle_add_isp(new_isp_name, uploaded_file):
     isp_text = reader.extract_text(uploaded_file)
     
     if isp_text:
-        isp_id = st.session_state.next_isp_id
-        st.session_state.isps[isp_id] = {
+        used_ids = set(st.session_state.isps.keys())
+        
+        new_isp_id = 1
+        while new_isp_id in used_ids:
+            new_isp_id += 1
+        
+        st.session_state.next_isp_id = max(new_isp_id + 1, st.session_state.next_isp_id)
+        
+        st.session_state.isps[new_isp_id] = {
             'name': new_isp_name,
             'text': isp_text,
             'analysis_results': {}
         }
-        st.session_state.analyzed_keywords[isp_id] = set()
-        st.session_state.current_isp_id = isp_id
+        st.session_state.analyzed_keywords[new_isp_id] = set()
+        st.session_state.current_isp_id = new_isp_id
         st.session_state.current_keyword = None
         st.session_state.current_sentences = []
         st.session_state.current_index = 0
         st.session_state.classifications = []
-        st.session_state.next_isp_id += 1
         st.session_state.file_uploaded = False
         st.session_state.uploaded_filename = ""
         st.rerun()
