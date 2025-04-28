@@ -160,6 +160,29 @@ def render_isp_selector(get_current_isp):
         key="isp_selector"
     )
     
+    if selected_isp_id is not None:
+        with st.expander("Delete ISP", expanded=False):
+            isp_name = st.session_state.isps[selected_isp_id].get('name', f"ISP {selected_isp_id}")
+            st.warning(f"You are about to delete '{isp_name}'. This action cannot be undone.")
+            st.info("Note: Deleting an ISP will remove all its analysis data.")
+            
+            if st.button("Delete this ISP", key="delete_isp_button", use_container_width=True):
+                if handle_delete_isp(selected_isp_id):
+                    st.rerun()
+            
+            st.markdown("""
+            <style>
+            div[data-testid="stExpander"] button[data-testid="baseButton-secondary"] {
+                background-color: #cc0000;
+                color: white;
+            }
+            div[data-testid="stExpander"] button[data-testid="baseButton-secondary"]:hover {
+                background-color: #aa0000;
+                border: 1px solid white;
+            }
+            </style>
+            """, unsafe_allow_html=True)
+    
     if selected_isp_id != st.session_state.current_isp_id:
         st.session_state.current_isp_id = selected_isp_id
         st.session_state.current_keyword = None
@@ -524,3 +547,38 @@ def render_session_panel(session_manager, get_current_isp):
         }
         </style>
         """, unsafe_allow_html=True)
+
+def handle_delete_isp(isp_id):
+    """Handle deleting an ISP from the analysis."""
+    if isp_id not in st.session_state.isps:
+        st.error(f"ISP with ID {isp_id} not found.")
+        return False
+
+    isp_name = st.session_state.isps[isp_id].get('name', f"ISP {isp_id}")
+    
+    del st.session_state.isps[isp_id]
+    
+    if isp_id in st.session_state.analyzed_keywords:
+        del st.session_state.analyzed_keywords[isp_id]
+    
+    if st.session_state.current_isp_id == isp_id:
+        if st.session_state.isps:
+            st.session_state.current_isp_id = next(iter(st.session_state.isps.keys()))
+        else:
+            st.session_state.current_isp_id = None
+        
+        st.session_state.current_keyword = None
+        st.session_state.current_sentences = []
+        st.session_state.current_index = 0
+        st.session_state.classifications = []
+    
+    keys_to_remove = []
+    for key in st.session_state.classification_metadata:
+        if key.startswith(f"{isp_id}::"):
+            keys_to_remove.append(key)
+    
+    for key in keys_to_remove:
+        del st.session_state.classification_metadata[key]
+    
+    st.success(f"'{isp_name}' has been removed from the analysis.")
+    return True
