@@ -38,6 +38,10 @@ class ModelManager:
     @staticmethod
     def get_available_models() -> Dict[str, Dict[str, Any]]:
         """Returns a dictionary of available models with their status (available or not)."""
+        
+        if not st.session_state.get("ai_available", False):
+            return {}
+
         available_models = {}
         
         for model_id, config in ModelManager.MODEL_CONFIGS.items():
@@ -54,6 +58,11 @@ class ModelManager:
     @staticmethod
     def find_model_file(model_id: str) -> Optional[Path]:
         """Returns a valid model path or None if the specified model is not found."""
+
+        if not st.session_state.get("ai_available", False):
+            st.error("AI functionality is disabled because the llama-cpp-python library is not installed.")
+            return None
+
         if model_id not in ModelManager.MODEL_CONFIGS:
             st.error(f"Unknown model ID: {model_id}")
             return None
@@ -75,6 +84,11 @@ class ModelManager:
     @staticmethod
     def load_model(model_id: str = None):
         """Load the LLM model for analysis using the specified model ID."""
+        
+        if not st.session_state.get("ai_available", False):
+            st.error("AI functionality is disabled because the llama-cpp-python library is not installed.")
+            return None
+        
         if model_id is None:
             model_id = st.session_state.get("selected_model", "4B")
         
@@ -131,6 +145,11 @@ class ModelManager:
     @staticmethod
     def debug_cuda_availability():
         """Check if CUDA is available and print diagnostic information without requiring PyTorch."""
+
+        if not st.session_state.get("ai_available", False):
+            st.error("AI functionality is disabled because the llama-cpp-python library is not installed.")
+            return
+
         st.write("### GPU Diagnostics")
         
         st.warning("The most reliable way to confirm CUDA support is working is to observe GPU usage in Task Manager while running inference.")
