@@ -10,13 +10,17 @@ class SentenceClassifier:
     
     def ensure_model_loaded(self):
         """Ensure the model is loaded."""
+
+        if not st.session_state.get("ai_available", False):
+            return False
+
         if self.model is None:
             self.model = ModelManager.load_model()
         return self.model is not None
     
     def get_classification_with_rationale(self, sentence_data: Dict[str, Any], keyword: str) -> Dict[str, str]:
         """Get classification with rationale for a sentence in a single model call."""
-        if not self.ensure_model_loaded():
+        if not st.session_state.get("ai_available", False) or not self.ensure_model_loaded():
             return self._rule_based_classification(sentence_data, keyword)
         
         sentence = sentence_data['sentence']

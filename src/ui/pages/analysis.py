@@ -54,7 +54,8 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
             st.rerun()
             
     with col4:
-        if st.button("Suggestion", key="suggestion_button", use_container_width=True):
+        if st.button("Suggestion", key="suggestion_button", use_container_width=True, 
+                     disabled=not st.session_state.get("ai_available", False)):
             st.session_state.suggestion_in_progress = True
             st.session_state.current_suggestion = None
             st.rerun()
@@ -70,7 +71,11 @@ def render_sentence_analysis_ui(current_isp: Dict[str, Any], classifier: Sentenc
                 st.rerun()
     
     if st.session_state.suggestion_in_progress:
-        render_suggestion_ui(current_isp, current_item, classifier)
+        if not st.session_state.get("ai_available", False):
+            st.error("AI suggestion is not available because the llama-cpp-python library is not installed.")
+            st.session_state.suggestion_in_progress = False
+        else:
+            render_suggestion_ui(current_isp, current_item, classifier)
     
     if st.session_state.show_context:
         render_context_ui(current_item)

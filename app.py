@@ -21,6 +21,15 @@ st.set_page_config(
 
 def initialize_app():
     """Initialize the application state and dependencies."""
+    
+    try:
+        import llama_cpp
+        st.session_state.ai_available = True
+    except ImportError:
+        st.session_state.ai_available = False
+        import sys
+        print("\033[91mERROR: The llama-cpp-python library is not installed. AI features will be disabled.\033[0m", file=sys.stderr)
+    
     session_repo = SQLiteSessionRepository()
     session_manager = SessionManager(session_repo)
     

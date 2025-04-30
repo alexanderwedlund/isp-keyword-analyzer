@@ -62,6 +62,11 @@ def render_sidebar(on_file_upload: Callable, get_current_isp: Callable, session_
 
 def render_model_selector():
     """Render the model selection UI component."""
+    
+    if not st.session_state.get("ai_available", False):
+        st.error("AI functionality is disabled because the llama-cpp-python library is not installed.")
+        return
+    
     available_models = ModelManager.get_available_models()
     
     if not any(model_info.get("available", False) for model_info in available_models.values()):
@@ -254,6 +259,10 @@ def render_ai_analysis_section(current_isp):
         return
         
     st.subheader("AI-Assisted Analysis")
+
+    if not st.session_state.get("ai_available", False):
+        st.error("AI functionality is disabled because the llama-cpp-python library is not installed.")
+        return
     
     render_model_selector()
     
@@ -324,12 +333,16 @@ def render_ai_analysis_section(current_isp):
     else:
         ai_col1, ai_col2 = st.columns(2)
         with ai_col1:
-            if st.button("Analyze Current Keyword with AI", key="ai_current_button", use_container_width=True):
+            if st.button("Analyze Current Keyword with AI", key="ai_current_button",
+                         use_container_width=True,
+                         disabled=not st.session_state.get("ai_available", False)):
                 st.session_state.show_ai_current_warning = True
                 st.rerun()
         
         with ai_col2:
-            if st.button("Analyze All Keywords with AI", key="ai_all_button", use_container_width=True):
+            if st.button("Analyze All Keywords with AI", key="ai_all_button",
+                         use_container_width=True,
+                         disabled=not st.session_state.get("ai_available", False)):
                 st.session_state.show_ai_warning = True
                 st.rerun()
 
