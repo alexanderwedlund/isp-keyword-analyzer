@@ -64,6 +64,25 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 
 3. For AI-assisted classification, a Gemma model placeholder and download link are provided in the `/models` directory. Follow the instructions there to download the model from Kaggle.
 
+### Installation on Kali Linux
+
+The application has been tested on Kali Linux (kali-rolling 2025.1) via Virtualbox (without CUDA). Use the following steps to install and run the application:
+
+```bash
+git clone https://github.com/alexanderwedlund/isp-keyword-analyzer.git
+cd isp-keyword-analyzer
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+To run the application:
+
+```bash
+python3 -m streamlit run app.py
+```
+
 ### Enabling CUDA Support on Windows
 
 I used the following commands to activate CUDA support for GPU acceleration with llama-cpp-python-0.3.8:
@@ -166,3 +185,7 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 - **AI Classification Accuracy**: AI classifications may sometimes be incorrect, especially for complex sentences or ambiguous contexts. All AI-generated classifications should be reviewed by a human for accuracy.
 - **GPU Support Configuration**: GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be significantly slower, especially for the 12B model.
 - **AI Interface Aesthetics**: The AI analysis interface currently displays excessive logs and diagnostic information, creating a cluttered appearance during model loading and inference operations.
+- **Suggestion Button Availability**: The "Suggestion" button is still accessible in cases where llama-cpp-python is installed but no model has been downloaded, leading to errors when clicked.
+- **Repeated Error Messages**: If llama-cpp-python is not found, the same error message is displayed multiple times in the terminal - once at startup and three more times when uploading an ISP document.
+- **Duplicate AI Error Messages**: If llama-cpp-python is found but no model is available, two similar error messages are displayed within the AI section.
+- **Older Mac Compatibility**: The application has been tested on an older Mac with macOS Big Sur but did not work due to requirements for older Python versions and packages. No fixes are planned for older system compatibility - please keep both hardware and software updated 😉
