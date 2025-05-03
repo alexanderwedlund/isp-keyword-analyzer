@@ -1,7 +1,14 @@
+# src/ui/utils.py
+
 import streamlit as st
 
 def show_congratulations():
     """Show a congratulations message and balloons when all keywords are analyzed."""
+    
+    if st.session_state.get("skip_congratulations", False):
+        st.session_state.skip_congratulations = False
+        return
+    
     st.balloons()
     
     st.markdown("""

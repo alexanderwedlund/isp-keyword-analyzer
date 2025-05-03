@@ -16,6 +16,10 @@ def render_export_ui(isps: Dict[int, Dict[str, Any]], language: str) -> None:
     """Render the export UI with analysis results."""
     st.header("Analysis Results")
     
+    if st.button("Refresh Metrics", key="refresh_metrics_btn"):
+        st.success("Metrics refreshed!")
+        st.rerun()
+    
     all_metrics = MetricsCalculator.calculate_all_metrics(
         isps, 
         KeywordSets.get_keywords(language)
@@ -34,6 +38,10 @@ def render_export_ui(isps: Dict[int, Dict[str, Any]], language: str) -> None:
         render_keyword_loss_table(all_metrics, create_safe_dataframe)
         
         if st.session_state.current_isp_id is not None:
+            if "last_displayed_isp" not in st.session_state or st.session_state.last_displayed_isp != st.session_state.current_isp_id:
+                st.session_state.raw_data_page = 0
+                st.session_state.last_displayed_isp = st.session_state.current_isp_id
+                
             render_raw_data_table(st.session_state.current_isp_id, isps, create_safe_dataframe)
         
         st.subheader("Export Results")

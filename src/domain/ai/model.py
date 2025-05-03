@@ -114,7 +114,7 @@ class ModelManager:
             try:
                 llm = Llama(
                     model_path=str(model_path),
-                    n_ctx=2048,
+                    n_ctx=4096,
                     n_gpu_layers=gpu_layers,  # Use all GPU layers possible
                     n_threads=4,              # Limit CPU threads to avoid overload
                     verbose=True
@@ -131,7 +131,7 @@ class ModelManager:
                 st.warning(f"GPU loading failed: {gpu_error}. Trying CPU fallback...")
                 llm = Llama(
                     model_path=str(model_path),
-                    n_ctx=2048,
+                    n_ctx=4096,
                     n_gpu_layers=0,  # CPU only
                     n_threads=8      # More CPU threads for CPU-only mode
                 )
