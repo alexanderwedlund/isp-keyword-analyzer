@@ -1,0 +1,34 @@
+Employees must lock their screens when leaving workspaces, even for brief moments.
+All systems shall require multi-factor authentication for access.
+Software and operating systems must be updated regularly without delay.
+Staff should never share credentials with colleagues, regardless of circumstances.
+Passwords shall be unique for each account with minimum 12-character length.
+All sensitive data must be encrypted both in transit and at rest.
+Access to information shall be restricted based on job requirements.
+Employees must attend regular security awareness training sessions.
+Suspicious emails shall be reported immediately to your security team.
+Staff should store passwords in an approved password management solution.
+IT departments must maintain a comprehensive inventory of all assets.
+Regular backup procedures shall be enforced with periodic testing.
+Unused network ports and services should be disabled on all devices.
+Organizations must implement formal processes for employee onboarding and offboarding.
+System access shall follow the principle of least privilege.
+Security teams should conduct periodic assessments of your environment.
+Clear incident response procedures must be established for security breaches.
+Network equipment shall be physically secured in locked rooms or cabinets.
+Employees must never install unauthorized software on company devices.
+Security policies shall be documented and reviewed regularly.
+Staff must verify email sender addresses before opening any attachments.
+Employees shall use privacy screens when working in public places.
+Sensitive documents should not be left visible when desks are unattended.
+Confidential materials must be shredded before disposal.
+Users shall never remain logged into accounts on shared computers.
+Company devices must not be left unattended in public locations.
+Employees shall use only company-approved cloud services for file sharing.
+All staff need to follow the clean desk policy at end of each workday.
+Lost or stolen devices must be reported to IT security immediately.
+Sensitive company information should never be discussed in public places.
+Files shall only be downloaded from trusted and verified sources.
+Employees must never connect to unsecured Wi-Fi for company business.
+Antivirus software shall remain active at all times on company devices.
+Staff should cover keyboards when entering passwords in public spaces.

@@ -13,6 +13,8 @@ class PDFFileReader(FileReader):
             text = ""
             for page in pdf_reader.pages:
                 text += page.extract_text() + "\n"
+                # Replacing characeters <> with characters [] to avoid error when <> is used in ISPs - quick fix to avoid interpreting <> as HTML tags  
+                text = text.replace("<", "[").replace(">", "]")
             return text
         except Exception as e:
             st.error(f"Error reading PDF: {e}")
