@@ -2,7 +2,7 @@
 
 ## Overview
 
-ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Alexander Wedlund and Solan Shekany at Örebro University (2025). The project was developed using a combination of manual programming and AI assistance, leveraging Claude Sonnet 3.7 and ChatGPT o3-mini-high to enhance development efficiency and code quality, along with Gemini 2.5 Pro Experimental for generating test ISP documents.
+ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Shekany & Wedlund (forthcoming, 2025) at Örebro University. The project was developed using a combination of manual programming and AI assistance, leveraging Claude Sonnet 3.7 and ChatGPT o3-mini-high to enhance development efficiency and code quality, along with Gemini 2.5 Pro Experimental for generating test ISP documents. After the study period was completed, Claude Opus 4 was used to further polish and refine the application.
 
 ## Features
 
@@ -77,7 +77,7 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-To run the application:
+To run the application (after ``source .venv/bin/activate``):
 
 ```bash
 python3 -m streamlit run app.py
@@ -151,10 +151,11 @@ ISP Keyword Analyzer includes AI-assisted classification that can:
 ### Important notes about the AI functionality:
 
 - **Use with caution**: AI classifications should always be reviewed by a human for accuracy
+- **Be aware of bias**: In the master thesis by Shekany & Wedlund (forthcoming, 2025), the authors chose not to use the tool’s AI‑based classification features because of the risk of introducing bias
 - **Starting point, not final answer**: Consider AI suggestions as a starting point, not a definitive answer
 - **Performance considerations**: AI analysis uses local computation and may be slow on computers without GPU support
 
-When using "Analyze Current Keyword with AI" or "Analyze All Keywords with AI", the tool will warn you about potential errors and ask for confirmation before proceeding.
+When using "Analyze Current Keyword with AI" or "Analyze All Keywords with AI", the tool will warn you about potential errors (including possible bias) and ask for confirmation before proceeding.
 
 ## Technical Details
 
@@ -181,11 +182,13 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 
 ## Known Issues
 
-- **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word.
+- **Angle‑Bracket Rendering**: Documents that contain the “<” character can trigger rendering problems. A temporary workaround now converts every “<” to its bracket equivalent (e.g., “<” -> "[") when the document is loaded
+- **Sentence Granularity**: Occasionally a “sentence” detected by the tool actually spans an entire paragraph. This affects both the sentence‑extraction and context features. While better sentence‑boundary detection would resolve it, Shekany & Wedlund (forthcoming, 2025) kept the current logic because it did not negatively impact the study
+- **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word
 - **AI Classification Accuracy**: AI classifications may sometimes be incorrect, especially for complex sentences or ambiguous contexts. All AI-generated classifications should be reviewed by a human for accuracy.
-- **GPU Support Configuration**: GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be significantly slower, especially for the 12B model.
-- **AI Interface Aesthetics**: The AI analysis interface currently displays excessive logs and diagnostic information, creating a cluttered appearance during model loading and inference operations.
-- **Suggestion Button Availability**: The "Suggestion" button is still accessible in cases where llama-cpp-python is installed but no model has been downloaded, leading to errors when clicked.
-- **Repeated Error Messages**: If llama-cpp-python is not found, the same error message is displayed multiple times in the terminal - once at startup and three more times when uploading an ISP document.
-- **Duplicate AI Error Messages**: If llama-cpp-python is found but no model is available, two similar error messages are displayed within the AI section.
+- **GPU Support Configuration**: GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be significantly slower, especially for the 12B model
+- **AI Interface Aesthetics**: The AI analysis interface currently displays excessive logs and diagnostic information, creating a cluttered appearance during model loading and inference operations
+- **Suggestion Button Availability**: The "Suggestion" button is still accessible in cases where llama-cpp-python is installed but no model has been downloaded, leading to errors when clicked
+- **Repeated Error Messages**: If llama-cpp-python is not found, the same error message is displayed multiple times in the terminal - once at startup and three more times when uploading an ISP document
+- **Duplicate AI Error Messages**: If llama-cpp-python is found but no model is available, two similar error messages are displayed within the AI section
 - **Older Mac Compatibility**: The application has been tested on an older Mac with macOS Big Sur but did not work due to requirements for older Python versions and packages. No fixes are planned for older system compatibility - please keep both hardware and software updated 😉
