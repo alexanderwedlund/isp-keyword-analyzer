@@ -93,6 +93,8 @@ def main():
 
     This application assists researchers and analysts in categorizing keyword occurrences in ISP (Information Security Policy) documents as either Actionable Advice (AA) or Other Information (OI). It calculates the Keyword Loss of Specificity metric, as proposed by [Rostami & Karlsson (2024)](https://www.emerald.com/insight/content/doi/10.1108/ics-10-2023-0187/full/pdf).
 
+    **Development Background:** This tool was developed by Alexander Wedlund to support master thesis research conducted by Shekany & Wedlund (forthcoming, 2025) at Örebro University.
+
     **To get started, upload an ISP document using the sidebar.**
     """)
     

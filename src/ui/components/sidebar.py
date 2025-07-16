@@ -271,7 +271,7 @@ def render_ai_analysis_section(current_isp):
         return
     
     if st.session_state.show_ai_current_warning:
-        st.sidebar.warning(f"⚠️ WARNING: AI analysis of '{st.session_state.current_keyword}' may produce inaccurate classifications. Please review all results carefully after processing is complete.")
+        st.sidebar.warning(f"⚠️ WARNING: AI analysis of '{st.session_state.current_keyword}' may produce inaccurate classifications and could introduce bias. Please review all results carefully after processing is complete.")
         
         c1, c2 = st.sidebar.columns(2)
         with c1:
@@ -298,7 +298,7 @@ def render_ai_analysis_section(current_isp):
                 st.rerun()
                 
     elif st.session_state.show_ai_warning:
-        st.sidebar.warning("⚠️ WARNING: Bulk AI analysis may produce inaccurate classifications. Please review all results carefully after processing is complete.")
+        st.sidebar.warning("⚠️ WARNING: Bulk AI analysis may produce inaccurate classifications and could introduce bias. Please review all results carefully after processing is complete.")
         
         c1, c2 = st.sidebar.columns(2)
         with c1:
