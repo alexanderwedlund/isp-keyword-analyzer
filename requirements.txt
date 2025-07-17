@@ -1,17 +1,17 @@
 # ISP Keyword Analyzer – requirements.txt
-# Latest tested versions (July 16, 2025)
+# Latest tested versions (July 17, 2025)
 
 # Core project dependencies
-streamlit==1.45.0
-pandas==2.2.3
+streamlit==1.47.0
+pandas==2.3.1
 PyPDF2==3.0.1
-XlsxWriter==3.2.3
+XlsxWriter==3.2.5
 
 # Data handling and analysis
-numpy==2.2.5
+numpy==2.3.1
 
 # AI functionality (optional but recommended)
-llama-cpp-python==0.3.9
+llama-cpp-python==0.3.13
 
 # Visualization and export
 matplotlib==3.10.3

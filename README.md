@@ -85,7 +85,7 @@ python3 -m streamlit run app.py
 
 ### Enabling CUDA Support on Windows
 
-I used the following commands to activate CUDA support for GPU acceleration with llama-cpp-python-0.3.8:
+I used the following commands to activate CUDA support for GPU acceleration with llama-cpp-python-0.3.8 -> 0.3.13:
 
 ```cmd
 set CMAKE_ARGS=-DGGML_CUDA=on -DGGML_CUDA_FORCE_CUBLAS=on -DLLAVA_BUILD=off -DCMAKE_CUDA_ARCHITECTURES=native
