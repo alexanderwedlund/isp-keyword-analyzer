@@ -2,7 +2,7 @@
 
 ## Overview
 
-ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by Shekany & Wedlund (forthcoming, 2025) at Örebro University. The project was developed using a combination of manual programming and AI assistance, leveraging Claude Sonnet 3.7 and ChatGPT o3-mini-high to enhance development efficiency and code quality, along with Gemini 2.5 Pro Experimental for generating test ISP documents. After the study period was completed, Claude Opus 4 was used to further polish and refine the application.
+ISP Keyword Analyzer is a specialized tool designed to analyze Information Security Policies (ISPs) by extracting and categorizing sentences containing specific keywords. This tool was developed by Alexander Wedlund to support master thesis research conducted by [Wedlund & Shekany (2025)](https://tinyurl.com/infosec-master-thesis) at Örebro University. The project was developed using a combination of manual programming and AI assistance, leveraging Claude Sonnet 3.7 and ChatGPT o3-mini-high to enhance development efficiency and code quality, along with Gemini 2.5 Pro Experimental for generating test ISP documents. After the study period was completed, Claude Opus 4 was used to further polish and refine the application.
 
 ## Features
 
@@ -46,7 +46,7 @@ ISP Keyword Analyzer is a specialized tool designed to analyze Information Secur
 
 ### Prerequisites
 
-- Python 3.7 or higher
+- Python 3.12.2
 - pip (Python package installer)
 
 ### Steps
@@ -85,7 +85,7 @@ python3 -m streamlit run app.py
 
 ### Enabling CUDA Support on Windows
 
-I used the following commands to activate CUDA support for GPU acceleration with llama-cpp-python-0.3.8 -> 0.3.13:
+I used the following commands to activate CUDA support for GPU acceleration with llama-cpp-python-0.3.8 -> 0.3.15:
 
 ```cmd
 set CMAKE_ARGS=-DGGML_CUDA=on -DGGML_CUDA_FORCE_CUBLAS=on -DLLAVA_BUILD=off -DCMAKE_CUDA_ARCHITECTURES=native
@@ -105,10 +105,13 @@ pip install llama-cpp-python --no-cache-dir --force-reinstall --upgrade
 #### Requirements
 
 This GPU acceleration has been tested with:
-- Windows 11
+- Windows 11 (24H2, 26100.4770)
 - CUDA Toolkit 12.6
 - NVIDIA RTX 3080 (16GB)
-- Python 3.12
+- Python 3.12.2
+- llama-cpp-python 0.3.15
+
+(Latest tested versions (August 12, 2025))
 
 ## Usage
 
@@ -151,7 +154,7 @@ ISP Keyword Analyzer includes AI-assisted classification that can:
 ### Important notes about the AI functionality:
 
 - **Use with caution**: AI classifications should always be reviewed by a human for accuracy
-- **Be aware of bias**: In the master thesis by Shekany & Wedlund (forthcoming, 2025), the authors chose not to use the tool’s AI‑based classification features because of the risk of introducing bias
+- **Be aware of bias**: In the master thesis by [Wedlund & Shekany (2025)](https://tinyurl.com/infosec-master-thesis), the authors chose not to use the tool’s AI‑based classification features because of the risk of introducing bias
 - **Starting point, not final answer**: Consider AI suggestions as a starting point, not a definitive answer
 - **Performance considerations**: AI analysis uses local computation and may be slow on computers without GPU support
 
@@ -183,7 +186,7 @@ A lower loss of specificity percentage indicates that keywords are more frequent
 ## Known Issues
 
 - **Angle‑Bracket Rendering**: Documents that contain the “<” character can trigger rendering problems. A temporary workaround now converts every “<” to its bracket equivalent (e.g., “<” -> "[") when the document is loaded
-- **Sentence Granularity**: Occasionally a “sentence” detected by the tool actually spans an entire paragraph. This affects both the sentence‑extraction and context features. While better sentence‑boundary detection would resolve it, Shekany & Wedlund (forthcoming, 2025) kept the current logic because it did not negatively impact the study
+- **Sentence Granularity**: Occasionally a “sentence” detected by the tool actually spans an entire paragraph. This affects both the sentence‑extraction and context features. While better sentence‑boundary detection would resolve it, [Wedlund & Shekany (2025)](https://tinyurl.com/infosec-master-thesis) kept the current logic because it did not negatively impact the study
 - **Keyword Loop**: When selecting a keyword that has already been analyzed and clicking "Next Keyword," the user becomes stuck on that keyword. To exit the loop, manually select the next word
 - **AI Classification Accuracy**: AI classifications may sometimes be incorrect, especially for complex sentences or ambiguous contexts. All AI-generated classifications should be reviewed by a human for accuracy
 - **GPU Support Configuration**: GPU support requires proper CUDA and llama-cpp-python configuration, otherwise CPU is used which may be significantly slower, especially for the 12B model
